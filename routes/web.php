@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AdminReservationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,5 +46,14 @@ Route::middleware(['auth', 'role:cpdo_admin'])
         ])->whereIn('status', ['approved', 'rejected'])
           ->name('reservations.updateStatus');
 });
+Route::get('/auth/google', [
+    GoogleAuthController::class,
+    'redirect',
+])->name('google.redirect');
+
+Route::get('/auth/google/callback', [
+    GoogleAuthController::class,
+    'callback',
+])->name('google.callback');
 
 require __DIR__.'/auth.php';
