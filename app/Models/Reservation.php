@@ -32,6 +32,10 @@ class Reservation extends Model
         'agreed',
         'status',
         'rejection_reason',
+        'start_date',
+        'end_date',
+        'start_time',
+        'end_time',
     ];
 
     protected function casts(): array
@@ -44,10 +48,12 @@ class Reservation extends Model
             'flags' => 'boolean',
             'podium' => 'boolean',
             'platform' => 'boolean',
-            'tables' => 'boolean',
-            'chairs' => 'boolean',
+            'tables' => 'integer',
+            'chairs' => 'integer',
             'removal_of_rings' => 'boolean',
             'agreed' => 'boolean',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 

@@ -45,7 +45,7 @@
             <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">Complete the details below to request a venue. Please review your information before submitting.</p>
         </header>
 
-        <form action="{{ url('/reservation') }}" method="POST" id="reservationForm" class="space-y-6">
+        <form action="{{ url('/reservations') }}" method="POST" id="reservationForm" class="space-y-6">
         @csrf
 
         <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -112,7 +112,41 @@
                 </fieldset>
                 <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                 <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Weekend rules can be adjusted after CPDO clarification.</p></div>
-                <div class="mt-5"><label for="time" class="mb-2 block text-sm font-semibold">Time <b class="text-red-600">*</b></label><input id="time" name="time" type="time" value="{{ old('time') }}" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+               <div class="mt-5 grid gap-5 sm:grid-cols-2">
+    <div>
+        <label for="startTime" class="mb-2 block text-sm font-semibold">
+            Start Time <b class="text-red-600">*</b>
+        </label>
+        <input
+            id="startTime"
+            name="startTime"
+            type="time"
+            value="{{ old('startTime') }}"
+            required
+            class="w-full rounded-xl border border-slate-300 px-4 py-3"
+        >
+        @error('startTime')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div>
+        <label for="endTime" class="mb-2 block text-sm font-semibold">
+            End Time <b class="text-red-600">*</b>
+        </label>
+        <input
+            id="endTime"
+            name="endTime"
+            type="time"
+            value="{{ old('endTime') }}"
+            required
+            class="w-full rounded-xl border border-slate-300 px-4 py-3"
+        >
+        @error('endTime')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+</div>
             </div>
         </section>
 
