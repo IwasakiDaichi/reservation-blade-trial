@@ -5,32 +5,38 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'CPDO Venue Reservation') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
+        <!-- Scripts and Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+
+    <body class="font-sans antialiased text-slate-800">
+        <div class="min-h-screen bg-[#F5F7FB]">
+
+            {{-- Main navigation --}}
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
+            {{-- Optional page heading --}}
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                <header class="border-b border-slate-200/70 bg-white">
+                    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                        <div class="text-xl font-semibold tracking-tight text-slate-800">
+                            {{ $header }}
+                        </div>
                     </div>
                 </header>
             @endisset
 
-            <!-- Page Content -->
-            <main>
+            {{-- Main page content --}}
+            <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
                 {{ $slot }}
             </main>
+
         </div>
     </body>
 </html>
