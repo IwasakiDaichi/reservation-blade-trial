@@ -20,48 +20,98 @@ class ReservationController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        if (blank($user->department) || blank($user->mobile_number)) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('error', 'Please complete your student profile before making a reservation.');
+        }
+
         return view('reservations.create');
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'department' => 'required|string|max:255',
-            'mobile_number' => 'required|string|max:30',
-            'purpose' => 'required|string|max:2000',
-            'venue' => 'required|string|max:255',
-            'other_venue' => 'nullable|string|max:255',
-            'reserved_date' => 'required|date|after_or_equal:today',
-            'time' => 'required|string|max:100',
+        $user = Auth::user();
 
-            'sound_system' => 'nullable|boolean',
-            'microphone' => 'nullable|boolean',
-            'video_wall' => 'nullable|boolean',
-            'flags' => 'nullable|boolean',
-            'podium' => 'nullable|boolean',
-            'platform' => 'nullable|boolean',
-            'tables' => 'nullable|boolean',
-            'chairs' => 'nullable|boolean',
-            'removal_of_rings' => 'nullable|boolean',
-
-            'other_requirements' => 'nullable|string|max:2000',
-            'agreed' => 'accepted',
-        ]);
-
-        $validated['user_id'] = Auth::id();
-        $validated['status'] = 'pending';
-
-        foreach ([
-            'sound_system', 'microphone', 'video_wall', 'flags',
-            'podium', 'platform', 'tables', 'chairs', 'removal_of_rings',
-        ] as $field) {
-            $validated[$field] = $request->boolean($field);
+        if (blank($user->department) || blank($user->mobile_number)) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('error', 'Please complete your student profile before submitting a reservation.');
         }
 
-        $validated['agreed'] = true;
-
-        Reservation::create($validated);
-
+        $validated = $request->validate([
+            'purpose' => 'required|string|max:2000',
+            'venue' => 'required|string|max:255',
+            'otherVenue' => 'nullable|string|max:255',
+    
+            'reservationType' => 'required|in:single,multiple',
+    
+            'reservedDate' => 'required_if:reservationType,single|nullable|date|after_or_equal:today',
+            'startDate' => 'required_if:reservationType,multiple|nullable|date|after_or_equal:today',
+            'endDate' => 'required_if:reservationType,multiple|nullable|date|after_or_equal:startDate',
+    
+            'startTime' => 'required|date_format:H:i',
+            'endTime' => 'required|date_format:H:i|after:startTime',
+    
+            'soundSystem' => 'nullable|string|max:255',
+            'microphone' => 'nullable|string|max:255',
+            'videoWall' => 'nullable|string|max:255',
+    
+            'flags' => 'nullable|in:Yes',
+            'podium' => 'nullable|in:Yes',
+            'platform' => 'nullable|in:Yes',
+            'removalOfRings' => 'nullable|in:Yes',
+    
+            'tables' => 'nullable|integer|min:0',
+            'chairs' => 'nullable|integer|min:0',
+    
+            'otherRequrements1' => 'nullable|string|max:2000',
+            'agreed' => 'accepted',
+        ]);
+    
+        $startDate = $validated['reservationType'] === 'single'
+            ? $validated['reservedDate']
+            : $validated['startDate'];
+    
+        $endDate = $validated['reservationType'] === 'single'
+            ? $validated['reservedDate']
+            : $validated['endDate'];
+    
+        Reservation::create([
+            'user_id' => $user->id,
+            'department' => $user->department,
+            'mobile_number' => $user->mobile_number,
+            'purpose' => $validated['purpose'],
+            'venue' => $validated['venue'],
+            'other_venue' => $validated['otherVenue'] ?? null,
+    
+            // Keep the existing fields working with older pages.
+            'reserved_date' => $startDate,
+            'time' => $validated['startTime'] . ' - ' . $validated['endTime'],
+    
+            // New date-range and time-range fields.
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_time' => $validated['startTime'],
+            'end_time' => $validated['endTime'],
+    
+            'sound_system' => !empty($validated['soundSystem']),
+            'microphone' => !empty($validated['microphone']),
+            'video_wall' => !empty($validated['videoWall']),
+            'flags' => isset($validated['flags']),
+            'podium' => isset($validated['podium']),
+            'platform' => isset($validated['platform']),
+            'tables' => (int) ($validated['tables'] ?? 0),
+            'chairs' => (int) ($validated['chairs'] ?? 0),
+            'removal_of_rings' => isset($validated['removalOfRings']),
+    
+            'other_requirements' => $validated['otherRequrements1'] ?? null,
+            'agreed' => true,
+            'status' => 'pending',
+        ]);
+    
         return redirect()
             ->route('reservations.index')
             ->with('success', 'Reservation submitted successfully!');

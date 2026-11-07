@@ -46,6 +46,45 @@
                 </div>
             @endif
         </div>
+        @if ($user->role === 'student')
+            <div>
+                <x-input-label for="department" :value="__('Department / Local No.')" />
+            
+                <x-text-input
+                    id="department"
+                    name="department"
+                    type="text"
+                    class="mt-1 block w-full"
+                    :value="old('department', $user->department)"
+                   
+                    placeholder="Enter your department or local number"
+                />
+            
+                <x-input-error
+                    class="mt-2"
+                    :messages="$errors->get('department')"
+                />
+            </div>
+        
+            <div>
+                <x-input-label for="mobile_number" :value="__('Mobile Number')" />
+            
+                <x-text-input
+                    id="mobile_number"
+                    name="mobile_number"
+                    type="tel"
+                    class="mt-1 block w-full"
+                    :value="old('mobile_number', $user->mobile_number)"
+                    
+                    placeholder="09XXXXXXXXX"
+                />
+            
+                <x-input-error
+                    class="mt-2"
+                    :messages="$errors->get('mobile_number')"
+                />
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>

@@ -45,35 +45,14 @@
             <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">Complete the details below to request a venue. Please review your information before submitting.</p>
         </header>
 
-        <form action="{{ url('/reservation') }}" method="POST" id="reservationForm" class="space-y-6">
+        <form action="{{ url('/reservations') }}" method="POST" id="reservationForm" class="space-y-6">
         @csrf
 
         <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Applicant Information</h2><p class="mt-1 text-sm text-slate-500">Contact and department information.</p></div></div>
             <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
                 <div>
-    <label for="name" class="block text-sm font-medium text-gray-700">
-        Full Name
-    </label>
-
-    <input
-        type="text"
-        id="name"
-        name="name"
-        value="{{ old('name', auth()->user()->name) }}"
-        readonly
-        class="mt-1 block w-full rounded-lg border border-gray-200
-               bg-gray-100 px-4 py-3 text-gray-600
-               cursor-not-allowed focus:outline-none"
-    >
-
-    <p class="mt-1 text-xs text-gray-500">
-        Your name is taken from your account and cannot be edited here.
-    </p>
-</div>
-                <div><label for="department" class="mb-2 block text-sm font-semibold">Department / Local No. <b class="text-red-600">*</b></label><input id="department" name="department" value="{{ old('department') }}" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('department')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                <div><label for="dateApplied" class="mb-2 block text-sm font-semibold">Date Applied</label><input id="dateApplied" name="dateApplied" type="date" value="{{ old('dateApplied', now()->toDateString()) }}" readonly class="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-500"></div>
-                <div><label for="mobileNumber" class="mb-2 block text-sm font-semibold">Mobile Number <b class="text-red-600">*</b></label><input id="mobileNumber" name="mobileNumber" type="tel" value="{{ old('mobileNumber') }}" required autocomplete="tel" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('mobileNumber')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+    
                 <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Purpose of Reservation <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             </div>
         </section>
@@ -112,7 +91,41 @@
                 </fieldset>
                 <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                 <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Weekend rules can be adjusted after CPDO clarification.</p></div>
-                <div class="mt-5"><label for="time" class="mb-2 block text-sm font-semibold">Time <b class="text-red-600">*</b></label><input id="time" name="time" type="time" value="{{ old('time') }}" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+               <div class="mt-5 grid gap-5 sm:grid-cols-2">
+    <div>
+        <label for="startTime" class="mb-2 block text-sm font-semibold">
+            Start Time <b class="text-red-600">*</b>
+        </label>
+        <input
+            id="startTime"
+            name="startTime"
+            type="time"
+            value="{{ old('startTime') }}"
+            required
+            class="w-full rounded-xl border border-slate-300 px-4 py-3"
+        >
+        @error('startTime')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div>
+        <label for="endTime" class="mb-2 block text-sm font-semibold">
+            End Time <b class="text-red-600">*</b>
+        </label>
+        <input
+            id="endTime"
+            name="endTime"
+            type="time"
+            value="{{ old('endTime') }}"
+            required
+            class="w-full rounded-xl border border-slate-300 px-4 py-3"
+        >
+        @error('endTime')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+</div>
             </div>
         </section>
 

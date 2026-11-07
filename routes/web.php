@@ -7,6 +7,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AdminReservationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\AdminDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,6 +18,7 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::patch('/profile/complete', [ProfileController::class, 'completeStudentProfile'])->name('profile.complete');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -45,6 +47,8 @@ Route::middleware(['auth', 'role:cpdo_admin'])
             'updateStatus',
         ])->whereIn('status', ['approved', 'rejected'])
           ->name('reservations.updateStatus');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 });
 Route::get('/auth/google', [
     GoogleAuthController::class,
