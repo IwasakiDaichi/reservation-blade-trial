@@ -20,14 +20,28 @@ class ReservationController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        if (blank($user->department) || blank($user->mobile_number)) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('error', 'Please complete your student profile before making a reservation.');
+        }
+
         return view('reservations.create');
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        if (blank($user->department) || blank($user->mobile_number)) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('error', 'Please complete your student profile before submitting a reservation.');
+        }
+
         $validated = $request->validate([
-            'department' => 'required|string|max:255',
-            'mobileNumber' => 'required|string|max:30',
             'purpose' => 'required|string|max:2000',
             'venue' => 'required|string|max:255',
             'otherVenue' => 'nullable|string|max:255',
@@ -66,9 +80,9 @@ class ReservationController extends Controller
             : $validated['endDate'];
     
         Reservation::create([
-            'user_id' => Auth::id(),
-            'department' => $validated['department'],
-            'mobile_number' => $validated['mobileNumber'],
+            'user_id' => $user->id,
+            'department' => $user->department,
+            'mobile_number' => $user->mobile_number,
             'purpose' => $validated['purpose'],
             'venue' => $validated['venue'],
             'other_venue' => $validated['otherVenue'] ?? null,

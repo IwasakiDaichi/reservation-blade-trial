@@ -27,7 +27,7 @@
                     <x-nav-link
                         :href="route('admin.reservations.index')"
                         :active="request()->routeIs('admin.reservations.*')">
-                        Admin Dashboard
+                        Manage Reservation
                     </x-nav-link>
                 @else
                     <x-nav-link
