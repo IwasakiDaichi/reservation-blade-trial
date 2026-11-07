@@ -16,8 +16,11 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isStudent = $this->user()->role === 'student';
+
         return [
             'name' => ['required', 'string', 'max:255'],
+
             'email' => [
                 'required',
                 'string',
@@ -26,6 +29,10 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+
+            'department' => ['nullable', 'string', 'max:255'],
+
+            'mobile_number' => ['nullable', 'string', 'max:30'],
         ];
     }
 }

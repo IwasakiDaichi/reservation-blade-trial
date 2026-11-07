@@ -7,6 +7,11 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                @if (session('error'))
+                <div class="mb-4 rounded-md bg-red-100 p-4 text-sm text-red-700">
+                    {{ session('error') }}
+                </div>
+                @endif
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     @include('profile.partials.update-profile-information-form')

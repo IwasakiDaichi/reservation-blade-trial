@@ -57,4 +57,19 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    /**
+ * Complete the student's required profile information.
+ */
+    public function completeStudentProfile(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'department' => ['required', 'string', 'max:255'],
+            'mobile_number' => ['required', 'string', 'max:30'],
+        ]);
+    
+        $request->user()->update($validated);
+    
+        return Redirect::route('dashboard')
+            ->with('status', 'Student profile completed successfully.');
+    }
 }

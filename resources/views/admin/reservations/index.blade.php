@@ -50,7 +50,16 @@
                                 </td>
 
                                 <td class="p-3">
-                                    {{ $reservation->reserved_date->format('M d, Y') }}
+                                    @if ($reservation->start_date && $reservation->end_date)
+                                        {{ $reservation->start_date->format('M d, Y') }}
+                                                                
+                                        @if (!$reservation->start_date->isSameDay($reservation->end_date))
+                                            - {{ $reservation->end_date->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        {{ $reservation->reserved_date->format('M d, Y') }}
+                                    @endif
+                                                                
                                     <div class="text-sm text-gray-500">
                                         {{ $reservation->time }}
                                     </div>

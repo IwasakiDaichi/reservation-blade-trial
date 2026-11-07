@@ -22,6 +22,12 @@ return new class extends Migration
             $table->string('other_venue')->nullable();
             $table->date('reserved_date');
             $table->string('time');
+            
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            
 
             // Equipment requests
             $table->boolean('sound_system')->default(false);
@@ -32,8 +38,8 @@ return new class extends Migration
             $table->boolean('platform')->default(false);
 
             // Physical setup
-            $table->boolean('tables')->default(false);
-            $table->boolean('chairs')->default(false);
+            $table->unsignedInteger('tables')->default(0);
+            $table->unsignedInteger('chairs')->default(0);
             $table->boolean('removal_of_rings')->default(false);
             $table->text('other_requirements')->nullable();
 
