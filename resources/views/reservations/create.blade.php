@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPDO Venue Reservation</title>
-    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
 <div class="min-h-screen lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
@@ -63,16 +63,43 @@
                 <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
                 <select id="venue" name="venue" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
                     <option value="">Choose a venue</option>
-                    <option value="Campus Gym" @selected(old('venue') === 'Campus Gym')>UB Cardinals Gym — 2,000–2,500 capacity</option>
-                    <option value="RCB Dome" @selected(old('venue') === 'RCB Dome')>RCB Dome — 200 armchairs</option>
-                    <option value="FGB Hall" @selected(old('venue') === 'FGB Hall')>FGB Hall — 150–200 capacity</option>
-                    <option value="Centenial Hall" @selected(old('venue') === 'Centenial Hall')>Centennial Hall — 100–150 capacity</option>
-                    <option value="AMS Hall" @selected(old('venue') === 'AMS Hall')>AMS Hall — 120 armchairs</option>
-                    <option value="Legacy" @selected(old('venue') === 'Legacy')>Legacy Multipurpose Hall — 150–300 capacity</option>
-                    <option value="UB Student Center" @selected(old('venue') === 'UB Student Center')>UB Student Center — 100 capacity</option>
-                    <option value="Alumni AVR" @selected(old('venue') === 'Alumni AVR')>Alumni AVR — 55 capacity</option>
-                    <option value="Centennial AVR" @selected(old('venue') === 'Centennial AVR')>Centennial AVR — 35 capacity</option>
-                    <option value="Other" @selected(old('venue') === 'Other')>Other venue</option>
+
+                    <option value="Campus Gym" data-capacity="2500">
+                        UB Cardinals Gym — 2,000–2,500 capacity
+                    </option>
+
+                    <option value="RCB Dome" data-capacity="200">
+                        RCB Dome — 200 armchairs
+                    </option>
+
+                    <option value="FGB Hall" data-capacity="200">
+                        FGB Hall — 150–200 capacity
+                    </option>
+
+                    <option value="Centenial Hall" data-capacity="150">
+                        Centennial Hall — 100–150 capacity
+                    </option>
+
+                    <option value="AMS Hall" data-capacity="120">
+                        AMS Hall — 120 armchairs
+                    </option>
+
+                    <option value="Legacy" data-capacity="300">
+                        Legacy Multipurpose Hall — 150–300 capacity
+                    </option>
+
+                    <option value="UB Student Center" data-capacity="100">
+                        UB Student Center — 100 capacity
+                    </option>
+
+                    <option value="Alumni AVR" data-capacity="55">
+                        Alumni AVR — 55 capacity
+                    </option>
+
+                    <option value="Centennial AVR" data-capacity="35">
+                        Centennial AVR — 35 capacity
+                    </option>
+
                 </select>
                 @error('venue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 <div id="other-venue-wrap" class="mt-5 {{ old('venue') === 'Other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
@@ -145,11 +172,102 @@
                         <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
                     </div>
                     <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
-                    <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div></div>
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                        
+                        <div>
+                            <label for="chairs" class="mb-2 block text-sm font-semibold">
+                                Number of Chairs
+                            </label>
+
+                            <input
+                                id="chairs"
+                                name="chairs"
+                                type="number"
+                                min="0"
+                                value="{{ old('chairs') }}"
+                                placeholder="0"
+                                class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                            >
+
+                            <p id="chairs-error" class="mt-2 hidden text-sm font-medium text-red-600">
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             </div>
         </section>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const venueSelect = document.getElementById('venue');
+            const chairsInput = document.getElementById('chairs');
+            const chairsError = document.getElementById('chairs-error');
+
+            function validateChairs() {
+
+                const selectedVenue = venueSelect.options[venueSelect.selectedIndex];
+
+                const capacity = selectedVenue
+                    ? selectedVenue.dataset.capacity
+                    : null;
+
+                const chairs = Number(chairsInput.value);
+
+                // Clear previous error
+                chairsError.textContent = '';
+                chairsError.classList.add('hidden');
+
+                chairsInput.classList.remove('border-red-500');
+
+                // No venue or no chair quantity entered
+                if (!capacity || chairsInput.value === '') {
+                    return true;
+                }
+
+                // Check if chairs exceed venue capacity
+                if (chairs > Number(capacity)) {
+
+                    chairsError.textContent =
+                        `The selected venue can only accommodate up to ${capacity} capacity.`;
+
+                    chairsError.classList.remove('hidden');
+                    chairsInput.classList.add('border-red-500');
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Validate whenever the venue changes
+            venueSelect.addEventListener('change', validateChairs);
+
+            // Validate whenever the chair quantity changes
+            chairsInput.addEventListener('input', validateChairs);
+
+            // Prevent form submission if chairs exceed capacity
+            const reservationForm = chairsInput.closest('form');
+
+            if (reservationForm) {
+                reservationForm.addEventListener('submit', function (event) {
+
+                    if (!validateChairs()) {
+                        event.preventDefault();
+                        chairsInput.focus();
+                    }
+
+                });
+            }
+
+            // Check previously entered values after validation errors
+            validateChairs();
+
+        });
+        </script>
+
 
         <section id="agreement-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">05</span><div><h2 class="text-xl font-bold">Terms and Conditions</h2><p class="mt-1 text-sm text-slate-500">Review the guidance and confirm your agreement.</p></div></div>

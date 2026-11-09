@@ -48,7 +48,7 @@
 
                     <div>
                         <label for="department" class="block text-sm font-medium text-slate-700">
-                            Department / Local No.
+                            Department
                         </label>
 
                         <input
