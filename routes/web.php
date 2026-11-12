@@ -1,0 +1,69 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\AdminReservationController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\AdminDashboardController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/dashboard', DashboardController::class)
+    ->middleware('auth')
+    ->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::patch('/profile/complete', [ProfileController::class, 'completeStudentProfile'])->name('profile.complete');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/reservations/{reservation}/print', [ReservationController::class, 'print'])
+        ->name('reservations.print');
+});
+
+Route::middleware(['auth', 'role:student'])->group(function () {
+    Route::get('/reservations', [ReservationController::class, 'index'])
+        ->name('reservations.index');
+
+    Route::get('/reservations/create', [ReservationController::class, 'create'])
+        ->name('reservations.create');
+
+    Route::post('/reservations', [ReservationController::class, 'store'])
+        ->name('reservations.store');
+});
+
+Route::middleware(['auth', 'role:cpdo_admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/reservations', [AdminReservationController::class, 'index'])
+            ->name('reservations.index');
+        Route::get('/reservations/{reservation}/signatures', [AdminReservationController::class, 'editSignatures'])
+            ->name('reservations.signatures.edit');
+        Route::put('/reservations/{reservation}/signatures', [AdminReservationController::class, 'updateSignatures'])
+            ->name('reservations.signatures.update');
+
+        Route::patch('/reservations/{reservation}/{status}', [
+            AdminReservationController::class,
+            'updateStatus',
+        ])->whereIn('status', ['approved', 'rejected'])
+          ->name('reservations.updateStatus');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
+});
+Route::get('/auth/google', [
+    GoogleAuthController::class,
+    'redirect',
+])->name('google.redirect');
+
+Route::get('/auth/google/callback', [
+    GoogleAuthController::class,
+    'callback',
+])->name('google.callback');
+
+require __DIR__.'/auth.php';
