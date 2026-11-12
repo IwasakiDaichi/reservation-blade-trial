@@ -16,7 +16,7 @@
         <div class="mt-10 hidden lg:block">
             <p class="text-xs font-bold uppercase tracking-widest text-blue-200">Reservation process</p>
             <ol class="mt-5 space-y-5 text-sm">
-                <li>01 · Applicant information</li><li>02 · Venue selection</li><li>03 · Reservation schedule</li><li>04 · Equipment and setup</li><li>05 · Terms and conditions</li>
+                <li>01 · Reservation Purpose</li><li>02 · Venue selection</li><li>03 · Reservation schedule</li><li>04 · Equipment and setup</li><li>05 · Terms and conditions</li>
             </ol>
         </div>
         <div class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 lg:mt-12">
@@ -49,11 +49,11 @@
         @csrf
 
         <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Applicant Information</h2><p class="mt-1 text-sm text-slate-500">Contact and department information.</p></div></div>
+            <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Reservation Purpose</h2><p class="mt-1 text-sm text-slate-500">e.g. Class lecture, student org seminar, department event</p></div></div>
             <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
                 <div>
     
-                <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Purpose of Reservation <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold"> <b class="text-red-600"></b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             </div>
         </section>
 

@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    public const DEPARTMENTS = [];
     /**
      * Get the validation rules that apply to the request.
      *
@@ -30,7 +31,7 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
 
-            'department' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', Rule::in([...config('departments'), 'Others'])],
 
             'mobile_number' => ['nullable', 'string', 'max:30'],
         ];
