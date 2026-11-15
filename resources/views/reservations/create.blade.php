@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPDO Venue Reservation</title>
-    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
 <div class="min-h-screen lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
@@ -16,7 +16,7 @@
         <div class="mt-10 hidden lg:block">
             <p class="text-xs font-bold uppercase tracking-widest text-blue-200">Reservation process</p>
             <ol class="mt-5 space-y-5 text-sm">
-                <li>01 · Applicant information</li><li>02 · Venue selection</li><li>03 · Reservation schedule</li><li>04 · Equipment and setup</li><li>05 · Terms and conditions</li>
+                <li>01 · Reservation Purpose</li><li>02 · Venue selection</li><li>03 · Reservation schedule</li><li>04 · Equipment and setup</li><li>05 · Terms and conditions</li>
             </ol>
         </div>
         <div class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 lg:mt-12">
@@ -45,16 +45,15 @@
             <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">Complete the details below to request a venue. Please review your information before submitting.</p>
         </header>
 
-        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6">
+        <form action="{{ url('/reservations') }}" method="POST" id="reservationForm" class="space-y-6">
         @csrf
 
         <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Applicant Information</h2><p class="mt-1 text-sm text-slate-500">Contact and department information.</p></div></div>
+            <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Reservation Purpose</h2><p class="mt-1 text-sm text-slate-500">e.g. Class lecture, student org seminar, department event</p></div></div>
             <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
                 <div>
     
-                <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Purpose of Reservation <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                <div class="sm:col-span-2"><label for="applicant_signature" class="mb-2 block text-sm font-semibold">Applicant Signature <span class="font-normal text-slate-500">(optional, JPG or PNG up to 10 MB; larger images are optimized automatically)</span></label><input id="applicant_signature" name="applicant_signature" type="file" accept="image/jpeg,image/png" class="w-full rounded-xl border border-slate-300 px-4 py-3"><p id="signature-upload-status" class="mt-1 text-sm text-slate-600" aria-live="polite"></p>@error('applicant_signature')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold"> <b class="text-red-600"></b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             </div>
         </section>
 
@@ -64,16 +63,43 @@
                 <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
                 <select id="venue" name="venue" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
                     <option value="">Choose a venue</option>
-                    <option value="Campus Gym" @selected(old('venue') === 'Campus Gym')>UB Cardinals Gym — 2,000–2,500 capacity</option>
-                    <option value="RCB Dome" @selected(old('venue') === 'RCB Dome')>RCB Dome — 200 armchairs</option>
-                    <option value="FGB Hall" @selected(old('venue') === 'FGB Hall')>FGB Hall — 150–200 capacity</option>
-                    <option value="Centenial Hall" @selected(old('venue') === 'Centenial Hall')>Centennial Hall — 100–150 capacity</option>
-                    <option value="AMS Hall" @selected(old('venue') === 'AMS Hall')>AMS Hall — 120 armchairs</option>
-                    <option value="Legacy" @selected(old('venue') === 'Legacy')>Legacy Multipurpose Hall — 150–300 capacity</option>
-                    <option value="UB Student Center" @selected(old('venue') === 'UB Student Center')>UB Student Center — 100 capacity</option>
-                    <option value="Alumni AVR" @selected(old('venue') === 'Alumni AVR')>Alumni AVR — 55 capacity</option>
-                    <option value="Centennial AVR" @selected(old('venue') === 'Centennial AVR')>Centennial AVR — 35 capacity</option>
-                    <option value="Other" @selected(old('venue') === 'Other')>Other venue</option>
+
+                    <option value="Campus Gym" data-capacity="2500">
+                        UB Cardinals Gym — 2,000–2,500 capacity
+                    </option>
+
+                    <option value="RCB Dome" data-capacity="200">
+                        RCB Dome — 200 armchairs
+                    </option>
+
+                    <option value="FGB Hall" data-capacity="200">
+                        FGB Hall — 150–200 capacity
+                    </option>
+
+                    <option value="Centenial Hall" data-capacity="150">
+                        Centennial Hall — 100–150 capacity
+                    </option>
+
+                    <option value="AMS Hall" data-capacity="120">
+                        AMS Hall — 120 armchairs
+                    </option>
+
+                    <option value="Legacy" data-capacity="300">
+                        Legacy Multipurpose Hall — 150–300 capacity
+                    </option>
+
+                    <option value="UB Student Center" data-capacity="100">
+                        UB Student Center — 100 capacity
+                    </option>
+
+                    <option value="Alumni AVR" data-capacity="55">
+                        Alumni AVR — 55 capacity
+                    </option>
+
+                    <option value="Centennial AVR" data-capacity="35">
+                        Centennial AVR — 35 capacity
+                    </option>
+
                 </select>
                 @error('venue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 <div id="other-venue-wrap" class="mt-5 {{ old('venue') === 'Other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
@@ -146,11 +172,102 @@
                         <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
                     </div>
                     <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
-                    <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div></div>
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                        
+                        <div>
+                            <label for="chairs" class="mb-2 block text-sm font-semibold">
+                                Number of Chairs
+                            </label>
+
+                            <input
+                                id="chairs"
+                                name="chairs"
+                                type="number"
+                                min="0"
+                                value="{{ old('chairs') }}"
+                                placeholder="0"
+                                class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                            >
+
+                            <p id="chairs-error" class="mt-2 hidden text-sm font-medium text-red-600">
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             </div>
         </section>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const venueSelect = document.getElementById('venue');
+            const chairsInput = document.getElementById('chairs');
+            const chairsError = document.getElementById('chairs-error');
+
+            function validateChairs() {
+
+                const selectedVenue = venueSelect.options[venueSelect.selectedIndex];
+
+                const capacity = selectedVenue
+                    ? selectedVenue.dataset.capacity
+                    : null;
+
+                const chairs = Number(chairsInput.value);
+
+                // Clear previous error
+                chairsError.textContent = '';
+                chairsError.classList.add('hidden');
+
+                chairsInput.classList.remove('border-red-500');
+
+                // No venue or no chair quantity entered
+                if (!capacity || chairsInput.value === '') {
+                    return true;
+                }
+
+                // Check if chairs exceed venue capacity
+                if (chairs > Number(capacity)) {
+
+                    chairsError.textContent =
+                        `The selected venue can only accommodate up to ${capacity} capacity.`;
+
+                    chairsError.classList.remove('hidden');
+                    chairsInput.classList.add('border-red-500');
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Validate whenever the venue changes
+            venueSelect.addEventListener('change', validateChairs);
+
+            // Validate whenever the chair quantity changes
+            chairsInput.addEventListener('input', validateChairs);
+
+            // Prevent form submission if chairs exceed capacity
+            const reservationForm = chairsInput.closest('form');
+
+            if (reservationForm) {
+                reservationForm.addEventListener('submit', function (event) {
+
+                    if (!validateChairs()) {
+                        event.preventDefault();
+                        chairsInput.focus();
+                    }
+
+                });
+            }
+
+            // Check previously entered values after validation errors
+            validateChairs();
+
+        });
+        </script>
+
 
         <section id="agreement-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">05</span><div><h2 class="text-xl font-bold">Terms and Conditions</h2><p class="mt-1 text-sm text-slate-500">Review the guidance and confirm your agreement.</p></div></div>
@@ -172,74 +289,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const reservationForm = document.getElementById('reservationForm');
-    const signatureInput = document.getElementById('applicant_signature');
-    const signatureUploadStatus = document.getElementById('signature-upload-status');
-    const maxSignatureSize = 10 * 1024 * 1024;
-
-    reservationForm.addEventListener('submit', async function (event) {
-        const signature = signatureInput.files[0];
-        if (!signature || signature.size <= maxSignatureSize) {
-            return;
-        }
-
-        event.preventDefault();
-        signatureUploadStatus.textContent = 'Optimizing signature image…';
-        signatureUploadStatus.classList.remove('text-red-600');
-        signatureUploadStatus.classList.add('text-slate-600');
-
-        try {
-            const image = await createImageBitmap(signature);
-            let scale = Math.min(1, 1600 / Math.max(image.width, image.height));
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-
-            if (!context) {
-                throw new Error('Image processing is unavailable.');
-            }
-
-            let optimizedImage = null;
-            for (let attempt = 0; attempt < 8; attempt++) {
-                canvas.width = Math.max(1, Math.round(image.width * scale));
-                canvas.height = Math.max(1, Math.round(image.height * scale));
-                context.fillStyle = '#ffffff';
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-                const quality = Math.max(0.35, 0.85 - attempt * 0.1);
-                optimizedImage = await new Promise(function (resolve) {
-                    canvas.toBlob(resolve, 'image/jpeg', quality);
-                });
-
-                if (optimizedImage && optimizedImage.size <= maxSignatureSize) {
-                    break;
-                }
-
-                scale *= 0.75;
-            }
-            image.close();
-
-            if (!optimizedImage || optimizedImage.size > maxSignatureSize) {
-                throw new Error('The image could not be reduced to the upload limit.');
-            }
-
-            const optimizedFile = new File(
-                [optimizedImage],
-                signature.name.replace(/\.[^.]+$/, '') + '.jpg',
-                { type: 'image/jpeg', lastModified: Date.now() },
-            );
-            const transfer = new DataTransfer();
-            transfer.items.add(optimizedFile);
-            signatureInput.files = transfer.files;
-            signatureUploadStatus.textContent = 'Image optimized. Submitting reservation…';
-            reservationForm.requestSubmit();
-        } catch {
-            signatureUploadStatus.textContent = 'Could not optimize this image. Please choose a JPG or PNG signature image under 10 MB.';
-            signatureUploadStatus.classList.remove('text-slate-600');
-            signatureUploadStatus.classList.add('text-red-600');
-        }
-    });
-
     const venueSelect = document.getElementById('venue');
     const otherVenueWrap = document.getElementById('other-venue-wrap');
     const otherVenueInput = document.getElementById('otherVenue');

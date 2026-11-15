@@ -276,7 +276,7 @@
                     Contact the CPDO office for reservation inquiries.
                 </p>
                 <p class="mt-2 text-sm font-medium text-indigo-300">
-                    [CPDO Contact Details — To Be Updated]
+                    Reservations@e.ubaguio.edu
                 </p>
             </div>
         
