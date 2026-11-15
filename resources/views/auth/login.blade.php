@@ -1,7 +1,9 @@
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
-
+        <a href="{{ url('/') }}" class="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900">
+        <span aria-hidden="true">&larr;</span> Back
+    </a>
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -13,13 +15,22 @@
         </div>
 
         <!-- Password -->
+                <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <div x-data="{ show: false }" class="relative mt-1">
+                <x-text-input id="password" class="block w-full pe-16"
+                                x-bind:type="show ? 'text' : 'password'"
+                                name="password"
+                                required autocomplete="current-password" />
+
+                <button type="button"
+                        @click="show = !show"
+                        class="absolute inset-y-0 end-0 px-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none"
+                        x-text="show ? 'Hide' : 'Show'"
+                        x-bind:aria-label="show ? 'Hide password' : 'Show password'"></button>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -58,7 +69,7 @@
                     <path fill="#FBBC05" d="M10.99 28.59A14.4 14.4 0 0 1 10.25 24c0-1.59.27-3.13.74-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 3.01 10.78l7.98-6.19Z"/>
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.9 2.3-8.18 2.3-5.99 0-11.07-4.22-12.96-9.91l-7.98 6.19C6.51 43.62 14.62 48 24 48Z"/>
                 </svg>
-            
+
                 <span>Continue with Google</span>
             </a>
         </div>

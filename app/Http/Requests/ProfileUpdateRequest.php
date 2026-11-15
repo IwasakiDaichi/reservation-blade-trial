@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    public const DEPARTMENTS = [];
     /**
      * Get the validation rules that apply to the request.
      *
@@ -17,22 +18,25 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         $isStudent = $this->user()->role === 'student';
-
+    
         return [
-            'name' => ['required', 'string', 'max:255'],
-
-            'email' => [
-                'required',
+            'department' => $isStudent
+                ? ['nullable', 'string', Rule::in([...config('departments'), 'Others'])]
+                : ['prohibited'],
+    
+            'department_other' => [
+                'required_if:department,Others',
+                'nullable',
                 'string',
-                'lowercase',
-                'email',
+
+
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
+
             ],
-
-            'department' => ['nullable', 'string', 'max:255'],
-
-            'mobile_number' => ['nullable', 'string', 'max:30'],
+    
+            'mobile_number' => $isStudent
+                ? ['nullable', 'string', 'max:30']
+                : ['prohibited'],
         ];
     }
 }
