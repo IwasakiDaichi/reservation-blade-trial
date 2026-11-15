@@ -60,7 +60,7 @@ class ReservationController extends Controller
             'soundSystem' => 'nullable|string|max:255',
             'microphone' => 'nullable|string|max:255',
             'videoWall' => 'nullable|string|max:255',
-            'applicant_signature' => 'nullable|image|mimes:jpeg,png|max:10240',
+            'applicant_signature' => 'required|image|mimes:jpeg,png|max:10240',
 
             'flags' => 'nullable|in:Yes',
             'podium' => 'nullable|in:Yes',
