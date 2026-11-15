@@ -45,7 +45,37 @@
             <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">Complete the details below to request a venue. Please review your information before submitting.</p>
         </header>
 
-        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate>
+        @php
+            $initialStep = 0;
+
+            if ($errors->hasAny(['applicant_signature', 'agreed'])) {
+                $initialStep = 3;
+            } elseif ($errors->hasAny([
+                'purpose',
+                'venue',
+                'otherVenue',
+                'reservationType',
+                'reservedDate',
+                'startDate',
+                'endDate',
+                'startTime',
+                'endTime',
+                'soundSystem',
+                'microphone',
+                'videoWall',
+                'flags',
+                'podium',
+                'platform',
+                'removalOfRings',
+                'tables',
+                'chairs',
+                'otherRequrements1',
+            ])) {
+                $initialStep = 0;
+            }
+        @endphp
+
+        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
         @csrf
         <div class="wizard-step space-y-6" data-step="0">
         <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -976,7 +1006,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================
 
     if (steps.length > 0) {
-        showStep(0);
+        const initialStep = Number(reservationForm.dataset.initialStep || 0);
+        showStep(initialStep);
     }
 
 });
