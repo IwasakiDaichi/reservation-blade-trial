@@ -29,6 +29,7 @@
                             <th class="p-3">Date</th>
                             <th class="p-3">Time</th>
                             <th class="p-3">Status</th>
+                            <th class="p-3">Form</th>
                         </tr>
                     </thead>
 
@@ -58,10 +59,17 @@
                                     @endif
 
                                 </td>
+                                <td class="p-3">
+                                    <a href="{{ route('reservations.print', $reservation) }}"
+                                        class="inline-flex whitespace-nowrap rounded border border-blue-700 px-3 py-1 text-sm font-semibold text-blue-800 hover:bg-blue-50"
+                                        target="_blank" rel="noopener">
+                                        Print form
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="p-6 text-center text-gray-500">
+                                <td colspan="5" class="p-6 text-center text-gray-500">
                                     You have not submitted any reservations yet.
                                 </td>
                             </tr>
