@@ -160,16 +160,6 @@
                                     @else
                                         <span class="text-gray-500">Reviewed</span>
                                     @endif
-                                    <div class="mt-3 flex flex-col items-start gap-2">
-                                        <a href="{{ route('reservations.print', $reservation) }}" target="_blank" rel="noopener"
-                                            class="text-sm font-semibold text-blue-800 underline">
-                                            Print form
-                                        </a>
-                                        <a href="{{ route('admin.reservations.signatures.edit', $reservation) }}"
-                                            class="text-sm font-semibold text-blue-800 underline">
-                                            Upload staff signatures
-                                        </a>
-                                    </div>
                                 </td>
                             </tr>
                         @empty

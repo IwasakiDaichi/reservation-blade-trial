@@ -36,14 +36,6 @@ class Reservation extends Model
         'end_date',
         'start_time',
         'end_time',
-        'sound_system_details',
-        'microphone_details',
-        'video_wall_details',
-        'applicant_signature_path',
-        'security_signature_path',
-        'endorsement_signature_path',
-        'reservation_officer_signature_path',
-        'approval_signature_path',
     ];
 
     protected function casts(): array
