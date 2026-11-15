@@ -1,9 +1,7 @@
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
-        <a href="{{ url('/') }}" class="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900">
-        <span aria-hidden="true">&larr;</span> Back
-    </a>
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -15,22 +13,13 @@
         </div>
 
         <!-- Password -->
-                <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <div x-data="{ show: false }" class="relative mt-1">
-                <x-text-input id="password" class="block w-full pe-16"
-                                x-bind:type="show ? 'text' : 'password'"
-                                name="password"
-                                required autocomplete="current-password" />
-
-                <button type="button"
-                        @click="show = !show"
-                        class="absolute inset-y-0 end-0 px-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none"
-                        x-text="show ? 'Hide' : 'Show'"
-                        x-bind:aria-label="show ? 'Hide password' : 'Show password'"></button>
-            </div>
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
