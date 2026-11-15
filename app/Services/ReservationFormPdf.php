@@ -94,7 +94,7 @@ class ReservationFormPdf
             ['Campus Gym',       'UB Cardinals Gym (2,000-2,500)'],
             ['RCB Dome',         'RCB Dome (300 armchairs)'],
             ['FGB Hall',         'FGB Hall (150-200)'],
-            ['Centenial Hall',   'Centennial Hall (100-150)'],
+            ['Centenial Hall',   'Centenial Hall (100-150)'],
             ['AMS Hall',         'AMS Hall (120 armchairs)'],
             ['Legacy',           'Legacy-multipurpose Hall (150-300)'],
             ['UB Student Center','UB Student Center (100)'],
@@ -225,17 +225,45 @@ class ReservationFormPdf
     $pdf->Cell($colW, 4.5, 'Others, please specify:', 0, 0);
     $y += 4.5;
 
-    $othersText  = $reservation->other_requirements ?? '';
-    $otherLines  = array_pad(preg_split('/\r?\n/', $othersText, 2) ?: ['', ''], 2, '');
-    foreach ($otherLines as $i => $line) {
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->SetXY($lx + 1, $y);
-        $pdf->Cell(5, 5, ($i + 1) . '.', 0, 0);
-        $pdf->SetXY($lx + 6, $y);
-        $pdf->Cell($colW - 8, 5, $this->encode($line), 0, 0);
-        $pdf->Line($lx + 6, $y + 5, $lx + $colW - 2, $y + 5);
-        $y += 5.5;
+    $othersText = trim($reservation->other_requirements ?? '');
+
+$otherLines = $othersText !== ''
+    ? preg_split('/\r\n|\r|\n/', $othersText)
+    : [''];
+
+foreach ($otherLines as $i => $line) {
+    $pdf->SetFont('Arial', '', 8);
+
+    $wrappedLines = $this->wrapText(
+        $pdf,
+        $this->encode($line),
+        $colW - 8,
+        8
+    );
+
+    if (empty($wrappedLines)) {
+        $wrappedLines = [''];
     }
+
+    $pdf->SetXY($lx + 1, $y);
+    $pdf->Cell(5, 4.5, ($i + 1) . '.', 0, 0);
+
+    foreach ($wrappedLines as $wrappedLine) {
+        $pdf->SetXY($lx + 6, $y);
+        $pdf->Cell($colW - 8, 4.5, $wrappedLine, 0, 0);
+
+        $pdf->Line(
+            $lx + 6,
+            $y + 4.5,
+            $lx + $colW - 2,
+            $y + 4.5
+        );
+
+        $y += 4.5;
+    }
+
+    $y += 1;
+}
 
     $leftEndY = $y;
 
