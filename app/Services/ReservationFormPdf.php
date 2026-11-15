@@ -94,7 +94,7 @@ class ReservationFormPdf
             ['Campus Gym',       'UB Cardinals Gym (2,000-2,500)'],
             ['RCB Dome',         'RCB Dome (300 armchairs)'],
             ['FGB Hall',         'FGB Hall (150-200)'],
-            ['Centenial Hall',   'Centenial Hall (100-150)'],
+            ['Centenial Hall',   'Centennial Hall (100-150)'],
             ['AMS Hall',         'AMS Hall (120 armchairs)'],
             ['Legacy',           'Legacy-multipurpose Hall (150-300)'],
             ['UB Student Center','UB Student Center (100)'],
@@ -225,45 +225,17 @@ class ReservationFormPdf
     $pdf->Cell($colW, 4.5, 'Others, please specify:', 0, 0);
     $y += 4.5;
 
-    $othersText = trim($reservation->other_requirements ?? '');
-
-$otherLines = $othersText !== ''
-    ? preg_split('/\r\n|\r|\n/', $othersText)
-    : [''];
-
-foreach ($otherLines as $i => $line) {
-    $pdf->SetFont('Arial', '', 8);
-
-    $wrappedLines = $this->wrapText(
-        $pdf,
-        $this->encode($line),
-        $colW - 8,
-        8
-    );
-
-    if (empty($wrappedLines)) {
-        $wrappedLines = [''];
-    }
-
-    $pdf->SetXY($lx + 1, $y);
-    $pdf->Cell(5, 4.5, ($i + 1) . '.', 0, 0);
-
-    foreach ($wrappedLines as $wrappedLine) {
+    $othersText  = $reservation->other_requirements ?? '';
+    $otherLines  = array_pad(preg_split('/\r?\n/', $othersText, 2) ?: ['', ''], 2, '');
+    foreach ($otherLines as $i => $line) {
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY($lx + 1, $y);
+        $pdf->Cell(5, 5, ($i + 1) . '.', 0, 0);
         $pdf->SetXY($lx + 6, $y);
-        $pdf->Cell($colW - 8, 4.5, $wrappedLine, 0, 0);
-
-        $pdf->Line(
-            $lx + 6,
-            $y + 4.5,
-            $lx + $colW - 2,
-            $y + 4.5
-        );
-
-        $y += 4.5;
+        $pdf->Cell($colW - 8, 5, $this->encode($line), 0, 0);
+        $pdf->Line($lx + 6, $y + 5, $lx + $colW - 2, $y + 5);
+        $y += 5.5;
     }
-
-    $y += 1;
-}
 
     $leftEndY = $y;
 
@@ -386,16 +358,7 @@ foreach ($otherLines as $i => $line) {
 
         // Row 1: Applicant (left) | Security Personnel (right)
         $y = $pdf->GetY();
-        $this->drawSignatureCell(
-            $pdf,
-            $lx,
-            $y,
-            $lw,
-            $sigH,
-            'Signature over printed name of Applicant',
-            $reservation->applicant_signature_path,
-            $reservation->user?->name
-        );
+        $this->drawSignatureCell($pdf, $lx, $y, $lw, $sigH, 'Signature over printed name of Applicant', $reservation->applicant_signature_path);
         $this->drawSignatureCell($pdf, $rx, $y, $rw, $sigH, 'Signature over printed name of Security personnel', $reservation->security_signature_path);
         $pdf->SetY($y + $sigH + 1.5);
 
@@ -609,42 +572,25 @@ foreach ($otherLines as $i => $line) {
         $pdf->Line($valX, $y + 5, $x + $width - 2, $y + 5);
     }
 
-   private function drawSignatureCell(
+    private function drawSignatureCell(
         Fpdi $pdf,
         float $x, float $y, float $width, float $height,
-        string $label, ?string $path,
-        ?string $printedName = null
+        string $label, ?string $path
     ): void {
         $pdf->SetFont('Arial', '', 7.5);
         $pdf->SetXY($x, $y);
 
         // Signature image
         if ($path) {
-            $this->addSignature($pdf, $path, $x, $y + 1, $width - 4, $height - 9);
+            $this->addSignature($pdf, $path, $x, $y + 1, $width - 4, $height - 7);
         }
 
         // Signature line
         $pdf->SetDrawColor(0, 0, 0);
-        $pdf->Line($x + 1, $y + $height - 7, $x + $width - 2, $y + $height - 7);
+        $pdf->Line($x + 1, $y + $height - 5, $x + $width - 2, $y + $height - 5);
 
-        // Printed name
-        if ($printedName) {
-            $pdf->SetFont('Arial', 'B', 7.5);
-            $pdf->SetXY($x, $y + $height - 6.5);
-            $pdf->Cell(
-                $width - 2,
-                3,
-                $this->encode($printedName),
-                0,
-                0,
-                'C'
-            );
-        }
-
-        // Signature label
-        $pdf->SetFont('Arial', '', 7);
-        $pdf->SetXY($x, $y + $height - 3.5);
-        $pdf->Cell($width - 2, 3, $this->encode($label), 0, 0, 'C');
+        $pdf->SetXY($x, $y + $height - 4.5);
+        $pdf->Cell($width - 2, 4, $this->encode($label), 0, 0, 'C');
     }
 
     // ─── SHARED UTILITIES ────────────────────────────────────────────────────
