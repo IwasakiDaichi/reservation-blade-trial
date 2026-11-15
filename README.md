@@ -7,6 +7,37 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Local development and signature uploads
+
+After installing the project dependencies and configuring your local `.env`, start the app with:
+
+```bash
+composer run serve-with-uploads
+```
+
+This starts the local PHP server with a writable temporary upload directory, a 12 MB per-file limit, and a 48 MB request limit. No `php.ini` edits are needed for this local server. Press `Ctrl+C` to stop it.
+
+You can also run `php artisan serve` if your PHP CLI configuration already has suitable upload limits and a writable `upload_tmp_dir`. The project's `public/.user.ini` settings apply to CGI/FastCGI servers, but not to `php artisan serve`.
+
+If port 8000 is already in use, choose another port before starting the server:
+
+```powershell
+$env:SERVER_PORT = '8001'
+composer run serve-with-uploads
+```
+
+For a hosted deployment, configure the PHP upload limits and temporary directory on the hosting server. Do not commit `.env`; each developer should configure their own environment.
+
+## Initialize the CPDO administrator account
+
+Set a strong `CPDO_ADMIN_PASSWORD` value in your local `.env`, configure the database, and run migrations before seeding:
+
+```bash
+php artisan db:seed --class="Database\Seeders\AdminUserSeeder"
+```
+
+This creates or updates `cpdo.admin@example.com`. If `CPDO_ADMIN_PASSWORD` is not set, the seeder falls back to `admin1234`; do not use that fallback for a shared or production environment. Running the seeder again resets the account password to the configured value.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
