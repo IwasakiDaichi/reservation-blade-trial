@@ -1,34 +1,39 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-slate-900">
             {{ __('Profile') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="profile-page py-8 sm:py-10">
+        <div class="mx-auto max-w-4xl space-y-6 px-4 sm:px-6 lg:px-8">
+            <div class="border-b border-slate-200 pb-6">
+                <p class="text-sm leading-6 text-slate-600">
+                    Update your contact details and password settings.
+                </p>
+            </div>
                 @if (session('error'))
-                <div class="mb-4 rounded-md bg-red-100 p-4 text-sm text-red-700">
+                <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
                     {{ session('error') }}
                 </div>
                 @endif
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+            <section class="profile-card">
+                <div class="max-w-2xl">
                     @include('profile.partials.update-profile-information-form')
                 </div>
-            </div>
+            </section>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+            <section class="profile-card">
+                <div class="max-w-2xl">
                     @include('profile.partials.update-password-form')
                 </div>
-            </div>
+            </section>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+            <section class="profile-card">
+                <div class="max-w-2xl">
                     @include('profile.partials.delete-user-form')
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 </x-app-layout>
