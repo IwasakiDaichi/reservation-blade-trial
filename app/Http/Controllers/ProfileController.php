@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -26,15 +27,20 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $validated = $request->validated();
+    
+        if (($validated['department'] ?? null) === 'Others') {
+            $validated['department'] = $validated['department_other'];
         }
-
+    
+        unset($validated['department_other']);
+    
+        $request->user()->fill($validated);
+    
         $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    
+        return Redirect::route('profile.edit')
+            ->with('status', 'profile-updated');
     }
 
     /**
@@ -57,18 +63,24 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
-    /**
- * Complete the student's required profile information.
- */
+       /**
+     * Complete the student's required profile information.
+     */
     public function completeStudentProfile(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'department' => ['required', 'string', 'max:255'],
-            'mobile_number' => ['required', 'string', 'max:30'],
+            'department'       => ['required', 'string', Rule::in([...config('departments'), 'Others'])],
+            'department_other' => ['required_if:department,Others', 'nullable', 'string', 'max:255'],
+            'mobile_number'    => ['required', 'string', 'max:30'],
         ]);
-    
+
+        if ($validated['department'] === 'Others') {
+            $validated['department'] = trim($validated['department_other']);
+        }
+        unset($validated['department_other']);
+
         $request->user()->update($validated);
-    
+
         return Redirect::route('dashboard')
             ->with('status', 'Student profile completed successfully.');
     }

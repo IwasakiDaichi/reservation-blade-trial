@@ -47,23 +47,58 @@
                     @method('PATCH')
 
                     <div>
-                        <label for="department" class="block text-sm font-medium text-slate-700">
-                            Department / Local No.
-                        </label>
+                        @php 
+                            $departments = ['Laboratory Elementary School', 'High School', 'Science High School', 'School of Business Administration & Accountancy', 'School of Criminal Justice and Public Safety', 'School of Dentistry',
+                            'School of Engineering & Architecture', 'School of Information Technology', 'School of International Hospitality & Tourism management', 'School of Law', 'School of Natural Sciences', 'School of Nursing', 'School of Teacher Education & Liberal Arts'];
+                            $currentDepartment = old('department', auth()->user()->department);
+                            $isOther = old('department') === 'Others' 
+                                || (filled($currentDepartment) && ! in_array($currentDepartment, $departments, true));
+                            $otherValue = old('department_other', $isOther && $currentDepartment !== 'Others' ? $currentDepartment : '');
+                        @endphp
 
-                        <input
-                            type="text"
-                            id="department"
-                            name="department"
-                            value="{{ old('department', auth()->user()->department) }}"
-                            required
-                            maxlength="255"
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        >
+                        <div x-data="{ dept: @js($isOther ? 'Others' : ($currentDepartment ?? '')) }">
+                            <label for="department" class="block text-sm font-medium text-slate-700">
+                                Department
+                            </label>
 
-                        @error('department')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                            <select
+                                id="department"
+                                name="department"
+                                x-model="dept"
+                                required
+                                class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            >
+                                <option value="" disabled>Select your department</option>
+                                @foreach ($departments as $dept)
+                                    <option value="{{ $dept }}">{{ $dept }}</option>
+                                @endforeach
+                                <option value="Others">Others (please specify)</option>
+                            </select>
+
+                            @error('department')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            <div x-show="dept === 'Others'" x-cloak class="mt-3">
+                                <label for="department_other" class="block text-sm font-medium text-slate-700">
+                                    Specify your department
+                                </label>
+                                <input
+                                    type="text"
+                                    id="department_other"
+                                    name="department_other"
+                                    value="{{ $otherValue }}"
+                                    maxlength="255"
+                                    x-bind:required="dept === 'Others'"
+                                    placeholder="Type your department"
+                                    class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+
+                                @error('department_other')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-4">
