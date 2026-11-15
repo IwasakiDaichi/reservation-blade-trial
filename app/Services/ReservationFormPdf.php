@@ -386,7 +386,16 @@ foreach ($otherLines as $i => $line) {
 
         // Row 1: Applicant (left) | Security Personnel (right)
         $y = $pdf->GetY();
-        $this->drawSignatureCell($pdf, $lx, $y, $lw, $sigH, 'Signature over printed name of Applicant', $reservation->applicant_signature_path);
+        $this->drawSignatureCell(
+            $pdf,
+            $lx,
+            $y,
+            $lw,
+            $sigH,
+            'Signature over printed name of Applicant',
+            $reservation->applicant_signature_path,
+            $reservation->user?->name
+        );
         $this->drawSignatureCell($pdf, $rx, $y, $rw, $sigH, 'Signature over printed name of Security personnel', $reservation->security_signature_path);
         $pdf->SetY($y + $sigH + 1.5);
 
@@ -600,25 +609,42 @@ foreach ($otherLines as $i => $line) {
         $pdf->Line($valX, $y + 5, $x + $width - 2, $y + 5);
     }
 
-    private function drawSignatureCell(
+   private function drawSignatureCell(
         Fpdi $pdf,
         float $x, float $y, float $width, float $height,
-        string $label, ?string $path
+        string $label, ?string $path,
+        ?string $printedName = null
     ): void {
         $pdf->SetFont('Arial', '', 7.5);
         $pdf->SetXY($x, $y);
 
         // Signature image
         if ($path) {
-            $this->addSignature($pdf, $path, $x, $y + 1, $width - 4, $height - 7);
+            $this->addSignature($pdf, $path, $x, $y + 1, $width - 4, $height - 9);
         }
 
         // Signature line
         $pdf->SetDrawColor(0, 0, 0);
-        $pdf->Line($x + 1, $y + $height - 5, $x + $width - 2, $y + $height - 5);
+        $pdf->Line($x + 1, $y + $height - 7, $x + $width - 2, $y + $height - 7);
 
-        $pdf->SetXY($x, $y + $height - 4.5);
-        $pdf->Cell($width - 2, 4, $this->encode($label), 0, 0, 'C');
+        // Printed name
+        if ($printedName) {
+            $pdf->SetFont('Arial', 'B', 7.5);
+            $pdf->SetXY($x, $y + $height - 6.5);
+            $pdf->Cell(
+                $width - 2,
+                3,
+                $this->encode($printedName),
+                0,
+                0,
+                'C'
+            );
+        }
+
+        // Signature label
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetXY($x, $y + $height - 3.5);
+        $pdf->Cell($width - 2, 3, $this->encode($label), 0, 0, 'C');
     }
 
     // ─── SHARED UTILITIES ────────────────────────────────────────────────────
