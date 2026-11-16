@@ -4,51 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPDO Venue Reservation</title>
-    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
-<div class="min-h-screen lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
-    <aside class="bg-gradient-to-b from-blue-950 via-blue-900 to-slate-900 px-6 py-8 text-white lg:min-h-screen">
+<div class="min-h-screen bg-slate-100 lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
+    <aside class="reservation-sidebar bg-blue-900 px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
         <a href="{{ url('/dashboard') }}" class="flex items-center gap-3">
-            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 font-black ring-1 ring-white/20">C</span>
-            <span><span class="block text-xs font-bold uppercase tracking-[.22em] text-blue-200">CPDO</span><span class="block font-bold">Venue Services</span></span>
+            <span class="flex h-10 w-10 items-center justify-center rounded-md border border-slate-600 bg-slate-800 font-bold">C</span>
+            <span><span class="block text-xs font-semibold tracking-wide text-slate-300">CPDO</span><span class="block text-sm font-semibold">Venue Services</span></span>
         </a>
-        <div class="mt-10 hidden lg:block">
-            <p class="text-xs font-bold uppercase tracking-widest text-blue-200">Reservation process</p>
-            <ol class="mt-5 space-y-5 text-sm">
-                <li>01 · Applicant information</li><li>02 · Venue selection</li><li>03 · Reservation schedule</li><li>04 · Equipment and setup</li><li>05 · Terms and conditions</li>
+
+        <nav class="mt-10 hidden lg:block" aria-label="Reservation progress">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Reservation progress</p>
+            <ol class="mt-5 border-l border-slate-700">
+                <li class="reservation-progress-item reservation-progress-current" data-progress-step="0" aria-current="step">
+                    <span class="reservation-progress-marker">1</span>
+                    <span class="block text-sm font-medium">Reservation details</span>
+                    <span class="mt-1 block text-xs text-slate-400">Venue, schedule, and setup</span>
+                </li>
+                <li class="reservation-progress-item" data-progress-step="1">
+                    <span class="reservation-progress-marker">2</span>
+                    <span class="block text-sm font-medium">Terms and conditions</span>
+                    <span class="mt-1 block text-xs text-slate-400">Review venue use requirements</span>
+                </li>
+                <li class="reservation-progress-item" data-progress-step="2">
+                    <span class="reservation-progress-marker">3</span>
+                    <span class="block text-sm font-medium">Policies and guidelines</span>
+                    <span class="mt-1 block text-xs text-slate-400">Review venue use policies</span>
+                </li>
+                <li class="reservation-progress-item" data-progress-step="3">
+                    <span class="reservation-progress-marker">4</span>
+                    <span class="block text-sm font-medium">Confirmation and signature</span>
+                    <span class="mt-1 block text-xs text-slate-400">Confirm details and submit</span>
+                </li>
             </ol>
-        </div>
-        <div class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 lg:mt-12">
-            <p class="font-semibold">Before you submit</p><p class="mt-2 text-sm leading-6 text-blue-100">Check your venue, dates, time, and setup details. All requests are subject to CPDO review.</p>
+        </nav>
+
+        <div class="mt-10 hidden border-t border-slate-700 pt-5 lg:block">
+            <p class="text-sm font-semibold">Before you submit</p>
+            <p class="mt-2 text-sm leading-6 text-slate-300">Review your venue, schedule, and setup details before submission.</p>
         </div>
     </aside>
 
-    <main class="min-w-0 px-4 py-6 sm:px-6 sm:py-10 xl:px-10">
+    <main class="min-w-0 px-4 py-6 sm:px-8 sm:py-8 xl:px-12">
     <div class="mx-auto max-w-5xl">
         @if (session('success'))
-        <div id="success-message" class="mb-6 flex justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900" role="status">
+        <div id="success-message" class="mb-6 flex justify-between gap-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-900" role="status">
             <div><p class="font-bold">Reservation submitted</p><p class="mt-1 text-sm">{{ session('success') }}</p></div>
             <button type="button" onclick="document.getElementById('success-message').remove()" aria-label="Close message">&times;</button>
         </div>
         @endif
         @if ($errors->any())
-        <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-900" role="alert">
+        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-5 text-red-900" role="alert">
             <p class="font-bold">Please check the following fields:</p>
             <ul class="mt-2 list-inside list-disc space-y-1 text-sm">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
         @endif
 
-        <header class="mb-8 rounded-3xl bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 p-6 text-white shadow-lg sm:p-9">
-            <p class="text-xs font-bold uppercase tracking-[.22em] text-blue-200">Campus Planning and Development Office</p>
-            <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Venue Reservation</h1>
-            <p class="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">Complete the details below to request a venue. Please review your information before submitting.</p>
+        <header class="mb-8 border-b border-slate-200 pb-6">
+            <p class="text-sm font-medium text-blue-800">Step 1 of 4</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Request a venue reservation</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Start with your event details, venue, schedule, and setup needs. You will review the terms, policies, and confirmation details before submission.</p>
         </header>
 
-        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate>
+        @php
+            $initialStep = 0;
+
+            if ($errors->hasAny(['applicant_signature', 'agreed'])) {
+                $initialStep = 3;
+            } elseif ($errors->hasAny([
+                'purpose',
+                'venue',
+                'otherVenue',
+                'reservationType',
+                'reservedDate',
+                'startDate',
+                'endDate',
+                'startTime',
+                'endTime',
+                'soundSystem',
+                'microphone',
+                'videoWall',
+                'flags',
+                'podium',
+                'platform',
+                'removalOfRings',
+                'tables',
+                'chairs',
+                'otherRequrements1',
+            ])) {
+                $initialStep = 0;
+            }
+        @endphp
+
+        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
         @csrf
         <div class="wizard-step space-y-6" data-step="0">
-        <section id="applicant-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section id="applicant-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
                     <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
                         <div>
@@ -56,7 +108,7 @@
                     </div>
                 </section>
             
-                <section id="venue-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <section id="venue-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span><div><h2 class="text-xl font-bold">Venue Selection</h2><p class="mt-1 text-sm text-slate-500">Choose the venue for your event.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
@@ -78,7 +130,7 @@
                     </div>
                 </section>
             
-                <section id="schedule-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <section id="schedule-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Schedule</h2><p class="mt-1 text-sm text-slate-500">Choose one day or a continuous date range.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <fieldset><legend class="mb-3 text-sm font-semibold">Reservation Duration <b class="text-red-600">*</b></legend>
@@ -128,7 +180,7 @@
                     </div>
                 </section>
             
-                <section id="requirements-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <section id="requirements-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">04</span><div><h2 class="text-xl font-bold">Equipment and Physical Setup</h2><p class="mt-1 text-sm text-slate-500">Add the equipment and setup items required.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <h3 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">Equipment</h3>
@@ -152,7 +204,7 @@
         </div>
         
         <div class="wizard-step space-y-6 hidden" data-step="1">
-            <section id="agreement-section" class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section id="agreement-section" class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
                     <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span>
                     <div>
@@ -196,7 +248,7 @@
 
         
         <div class="wizard-step space-y-6 hidden" data-step="2">
-            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
                     <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span>
                     <div>
@@ -250,7 +302,7 @@
         </div>
 
         <div class="wizard-step space-y-6 hidden" data-step="3">
-            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section class="reservation-card">
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-7">
                     <h2 class="text-xl font-bold">Agreement and Signature</h2>
                     <p class="mt-1 text-sm text-slate-500">
@@ -424,6 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevButton = document.getElementById('prevStep');
     const submitButton = document.getElementById('submitReservation');
     const stepIndicator = document.getElementById('step-indicator');
+    const progressSteps = document.querySelectorAll('[data-progress-step]');
 
     let currentStep = 0;
 
@@ -471,6 +524,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         currentStep = index;
 
+        progressSteps.forEach(function (step, progressIndex) {
+            const isCurrent = progressIndex === index;
+            const isComplete = progressIndex < index;
+
+            step.classList.toggle('reservation-progress-current', isCurrent);
+            step.classList.toggle('reservation-progress-complete', isComplete);
+
+            if (isCurrent) {
+                step.setAttribute('aria-current', 'step');
+            } else {
+                step.removeAttribute('aria-current');
+            }
+        });
+
         if (stepIndicator) {
             stepIndicator.textContent =
                 `Step ${index + 1} of ${steps.length}`;
@@ -494,10 +561,6 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
 
-        window.scrollTo({
-            top: reservationForm.offsetTop - 30,
-            behavior: 'smooth'
-        });
     }
 
     function validateStep(index) {
@@ -976,7 +1039,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================
 
     if (steps.length > 0) {
-        showStep(0);
+        const initialStep = Number(reservationForm.dataset.initialStep || 0);
+        showStep(initialStep);
     }
 
 });
