@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -121,6 +120,12 @@ Route::middleware([
             'index'
         ])->name('dashboard');
          // Calendar of Activities (admin only)
+        Route::get('/calendar', [
+            CalendarController::class,
+            'index'
+        ])->name('calendar');
+
+        // Calendar of Activities (admin only)
         Route::get('/calendar', [
             CalendarController::class,
             'index'
