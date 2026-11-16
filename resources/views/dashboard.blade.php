@@ -60,10 +60,12 @@
                         </label>
 
                         <select
+
                             id="department"
                             name="department"
                             x-model="dept"
                             required
+
                             class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
                             <option value="" disabled>Select your department</option>

@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AdminReservationController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\CalendarController;
 
+// Public landing page
 Route::get('/', function () {
     return view('welcome');
 });
@@ -19,9 +20,13 @@ Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', PreventBackHistory::class])
     ->name('dashboard');
 
-// Profile routes
-Route::middleware(['auth', PreventBackHistory::class])->group(function () {
+// Authenticated user routes
+Route::middleware([
+    'auth',
+    PreventBackHistory::class
+])->group(function () {
 
+    // Profile
     Route::patch('/profile/complete', [
         ProfileController::class,
         'completeStudentProfile'
@@ -41,6 +46,12 @@ Route::middleware(['auth', PreventBackHistory::class])->group(function () {
         ProfileController::class,
         'destroy'
     ])->name('profile.destroy');
+
+    // Reservation PDF printing
+    Route::get('/reservations/{reservation}/print', [
+        ReservationController::class,
+        'print'
+    ])->name('reservations.print');
 
 });
 
@@ -78,21 +89,41 @@ Route::middleware([
     ->name('admin.')
     ->group(function () {
 
+        // Reservation management
         Route::get('/reservations', [
             AdminReservationController::class,
             'index'
         ])->name('reservations.index');
 
+        // Manage reservation signatures
+        Route::get('/reservations/{reservation}/signatures', [
+            AdminReservationController::class,
+            'editSignatures'
+        ])->name('reservations.signatures.edit');
+
+        Route::put('/reservations/{reservation}/signatures', [
+            AdminReservationController::class,
+            'updateSignatures'
+        ])->name('reservations.signatures.update');
+
+        // Approve or reject reservations
         Route::patch('/reservations/{reservation}/{status}', [
             AdminReservationController::class,
-            'updateStatus',
-        ])->whereIn('status', ['approved', 'rejected'])
-          ->name('reservations.updateStatus');
+            'updateStatus'
+        ])
+            ->whereIn('status', ['approved', 'rejected'])
+            ->name('reservations.updateStatus');
 
+        // Admin dashboard
         Route::get('/dashboard', [
             AdminDashboardController::class,
             'index'
         ])->name('dashboard');
+         // Calendar of Activities (admin only)
+        Route::get('/calendar', [
+            CalendarController::class,
+            'index'
+        ])->name('calendar');
 
         // Calendar of Activities (admin only)
         Route::get('/calendar', [
@@ -102,15 +133,16 @@ Route::middleware([
 
     });
 
-// Google Authentication routes
+// Google Authentication
 Route::get('/auth/google', [
     GoogleAuthController::class,
-    'redirect',
+    'redirect'
 ])->name('google.redirect');
 
 Route::get('/auth/google/callback', [
     GoogleAuthController::class,
-    'callback',
+    'callback'
 ])->name('google.callback');
 
+// Authentication routes
 require __DIR__.'/auth.php';

@@ -28,7 +28,10 @@ class ProfileUpdateRequest extends FormRequest
                 'required_if:department,Others',
                 'nullable',
                 'string',
+
+
                 'max:255',
+
             ],
     
             'mobile_number' => $isStudent

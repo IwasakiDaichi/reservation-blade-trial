@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-semibold text-slate-900">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm leading-6 text-slate-600">
             {{ __("Update your account's profile information.") }}
         </p>
     </header>
@@ -20,11 +20,31 @@
                 <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" type="text" class="mt-1 block w-full bg-gray-100 text-gray-500 cursor-not-allowed" :value="$user->name" disabled />
+
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" type="email" class="mt-1 block w-full bg-gray-100 text-gray-500 cursor-not-allowed" :value="$user->email" disabled />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
         @if ($user->role === 'student')
                         @php
@@ -69,20 +89,20 @@
                     <x-input-error class="mt-2" :messages="$errors->get('department_other')" />
                 </div>
             </div>
-        
+
             <div>
                 <x-input-label for="mobile_number" :value="__('Mobile Number')" />
-            
+
                 <x-text-input
                     id="mobile_number"
                     name="mobile_number"
                     type="tel"
                     class="mt-1 block w-full"
                     :value="old('mobile_number', $user->mobile_number)"
-                    
+
                     placeholder="09XXXXXXXXX"
                 />
-            
+
                 <x-input-error
                     class="mt-2"
                     :messages="$errors->get('mobile_number')"
@@ -97,9 +117,8 @@
                 <p
                     x-data="{ show: true }"
                     x-show="show"
-                    x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
+                    class="text-sm text-slate-600"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>
