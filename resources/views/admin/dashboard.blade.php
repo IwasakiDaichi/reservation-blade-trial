@@ -1,12 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h2 class="text-xl font-semibold text-gray-800">
-                CPDO Dashboard
-            </h2>
-            <p class="mt-1 text-sm text-gray-500">
-                Overview of venue reservations and activities.
-            </p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800">
+                    CPDO Dashboard
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Overview of venue reservations and activities.
+                </p>
+            </div>
+
+            <a href="{{ route('admin.calendar') }}"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z" />
+                </svg>
+                Calendar of Activities
+            </a>
         </div>
     </x-slot>
 
@@ -79,10 +89,17 @@
                         </p>
                     </div>
 
-                    <a href="{{ route('admin.reservations.index') }}"
-                        class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                        Manage Reservations →
-                    </a>
+                    <div class="flex items-center gap-5">
+                        <a href="{{ route('admin.calendar') }}"
+                            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                            View Calendar →
+                        </a>
+
+                        <a href="{{ route('admin.reservations.index') }}"
+                            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                            Manage Reservations →
+                        </a>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -197,14 +214,14 @@
                             <div class="sm:text-right">
                                 <p class="font-medium text-gray-900">
                                     @if ($reservation->start_date && $reservation->end_date)
-                                            {{ $reservation->start_date->format('M d, Y') }}
-                                                                    
-                                            @if (!$reservation->start_date->isSameDay($reservation->end_date))
-                                                - {{ $reservation->end_date->format('M d, Y') }}
-                                            @endif
-                                        @else
-                                            {{ $reservation->reserved_date->format('M d, Y') }}
+                                        {{ $reservation->start_date->format('M d, Y') }}
+
+                                        @if (!$reservation->start_date->isSameDay($reservation->end_date))
+                                            - {{ $reservation->end_date->format('M d, Y') }}
                                         @endif
+                                    @else
+                                        {{ $reservation->reserved_date->format('M d, Y') }}
+                                    @endif
                                 </p>
                                 <p class="text-sm text-gray-500">
                                     {{ $reservation->time }}

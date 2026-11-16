@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\ProfileController;
@@ -9,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Middleware\PreventBackHistory;
+use App\Http\Controllers\CalendarController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -93,6 +93,12 @@ Route::middleware([
             AdminDashboardController::class,
             'index'
         ])->name('dashboard');
+
+        // Calendar of Activities (admin only)
+        Route::get('/calendar', [
+            CalendarController::class,
+            'index'
+        ])->name('calendar');
 
     });
 
