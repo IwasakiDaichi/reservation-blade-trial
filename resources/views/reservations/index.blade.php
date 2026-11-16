@@ -1,67 +1,84 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold text-gray-800">
+        <h2 class="text-xl font-semibold text-slate-900">
             My Reservations
         </h2>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-6xl mx-auto px-4">
+    <div class="py-2 sm:py-4">
+        <div class="space-y-6">
 
             @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+                <div class="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900" role="status">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.78-9.78a.75.75 0 0 0-1.06-1.06L9 10.94 7.28 9.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.06 0l4.25-4.31Z" clip-rule="evenodd" />
+                    </svg>
                     {{ session('success') }}
                 </div>
             @endif
 
-            <div class="mb-5">
+            <div class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-sm text-slate-600">
+                        Review the status of your venue requests and print submitted forms.
+                    </p>
+                </div>
+
                 <a href="{{ route('reservations.create') }}"
-                    class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    + New Reservation
+                    class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M10 4.75a.75.75 0 0 1 .75.75v3.75h3.75a.75.75 0 0 1 0 1.5h-3.75v3.75a.75.75 0 0 1-1.5 0V10.75H5.5a.75.75 0 0 1 0-1.5h3.75V5.5A.75.75 0 0 1 10 4.75Z" />
+                    </svg>
+                    New reservation
                 </a>
             </div>
 
-            <div class="bg-white shadow-sm rounded-lg overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-100">
+            <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
+                    <h3 class="text-base font-semibold text-slate-900">Submitted requests</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-600">
                         <tr>
-                            <th class="p-3">Venue</th>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Time</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3">Form</th>
+                            <th scope="col" class="px-5 py-3 sm:px-6">Venue</th>
+                            <th scope="col" class="px-5 py-3 sm:px-6">Date</th>
+                            <th scope="col" class="px-5 py-3 sm:px-6">Time</th>
+                            <th scope="col" class="px-5 py-3 sm:px-6">Status</th>
+                            <th scope="col" class="px-5 py-3 text-right sm:px-6">Form</th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody class="divide-y divide-slate-200 text-slate-700">
                         @forelse ($reservations as $reservation)
-                            <tr class="border-t">
-                                <td class="p-3">{{ $reservation->venue }}</td>
-                                <td class="p-3">
+                            <tr class="hover:bg-slate-50">
+                                <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-900 sm:px-6">{{ $reservation->venue }}</td>
+                                <td class="whitespace-nowrap px-5 py-4 sm:px-6">
                                     {{ $reservation->reserved_date->format('M d, Y') }}
                                 </td>
-                                <td class="p-3">{{ $reservation->time }}</td>
-                                <td class="p-3">
-                                    <span class="px-2 py-1 rounded text-sm
+                                <td class="whitespace-nowrap px-5 py-4 sm:px-6">{{ $reservation->time }}</td>
+                                <td class="px-5 py-4 sm:px-6">
+                                    <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-semibold
                                         {{ $reservation->status === 'approved'
-                                            ? 'bg-green-100 text-green-800'
+                                            ? 'bg-emerald-100 text-emerald-800'
                                             : ($reservation->status === 'rejected'
                                                 ? 'bg-red-100 text-red-800'
-                                                : 'bg-yellow-100 text-yellow-800') }}">
+                                                : 'bg-amber-100 text-amber-800') }}">
                                         {{ ucfirst($reservation->status) }}
                                     </span>
                                     
                                     @if ($reservation->status === 'rejected' && $reservation->rejection_reason)
-                                        <div class="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                                        <div class="mt-3 max-w-sm rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                                             <p class="font-semibold">Reason for rejection</p>
                                             <p class="mt-1">{{ $reservation->rejection_reason }}</p>
                                         </div>
                                     @endif
 
                                 </td>
-                                <td class="p-3">
+                                <td class="whitespace-nowrap px-5 py-4 text-right sm:px-6">
                                     <a href="{{ route('reservations.print', $reservation) }}"
-                                        class="inline-flex whitespace-nowrap rounded border border-blue-700 px-3 py-1 text-sm font-semibold text-blue-800 hover:bg-blue-50"
+                                        class="inline-flex items-center rounded-md border border-blue-700 px-3 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
                                         target="_blank" rel="noopener">
                                         Print form
                                     </a>
@@ -69,13 +86,15 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="p-6 text-center text-gray-500">
-                                    You have not submitted any reservations yet.
+                                <td colspan="5" class="px-5 py-12 text-center text-slate-600 sm:px-6">
+                                    <p class="font-medium text-slate-800">No reservations submitted</p>
+                                    <p class="mt-1 text-sm">Select “New reservation” to submit your first venue request.</p>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
