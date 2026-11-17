@@ -11,13 +11,41 @@ use RuntimeException;
 
 class AdminReservationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->query('q', ''));
+        $status = (string) $request->query('status', '');
+
+        if (! in_array($status, ['pending', 'approved', 'rejected'], true)) {
+            $status = '';
+        }
+
         $reservations = Reservation::with('user')
+            ->when($status !== '', fn ($query) => $query->where('status', $status))
+            ->when($search !== '', function ($query) use ($search) {
+                $like = '%'.$search.'%';
+                $idPart = ltrim($search, '#');
+
+                $query->where(function ($q) use ($like, $idPart) {
+                    // "#12" or "12" finds reservation number 12.
+                    if ($idPart !== '' && ctype_digit($idPart)) {
+                        $q->orWhere('id', (int) $idPart);
+                    }
+
+                    $q->orWhere('purpose', 'like', $like)
+                        ->orWhere('department', 'like', $like)
+                        ->orWhere('venue', 'like', $like)
+                        ->orWhere('other_venue', 'like', $like)
+                        ->orWhereHas('user', function ($u) use ($like) {
+                            $u->where('name', 'like', $like)
+                                ->orWhere('email', 'like', $like);
+                        });
+                });
+            })
             ->latest()
             ->get();
 
-        return view('admin.reservations.index', compact('reservations'));
+        return view('admin.reservations.index', compact('reservations', 'search', 'status'));
     }
 
     public function editSignatures(Reservation $reservation)

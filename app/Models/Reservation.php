@@ -44,7 +44,19 @@ class Reservation extends Model
         'endorsement_signature_path',
         'reservation_officer_signature_path',
         'approval_signature_path',
+        'calendar_remarks',
+        'approved_at',
     ];
+
+    protected static function booted(): void
+    {
+        // Record the approval date whenever the status changes.
+        static::saving(function (Reservation $reservation) {
+            if ($reservation->isDirty('status')) {
+                $reservation->approved_at = $reservation->status === 'approved' ? now() : null;
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -62,6 +74,7 @@ class Reservation extends Model
             'agreed' => 'boolean',
             'start_date' => 'date',
             'end_date' => 'date',
+            'approved_at' => 'datetime',
         ];
     }
 

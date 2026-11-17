@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\CalendarEntryController;
 
 // Public landing page
 Route::get('/', function () {
@@ -119,17 +120,31 @@ Route::middleware([
             AdminDashboardController::class,
             'index'
         ])->name('dashboard');
-         // Calendar of Activities (admin only)
-        Route::get('/calendar', [
-            CalendarController::class,
-            'index'
-        ])->name('calendar');
-
         // Calendar of Activities (admin only)
         Route::get('/calendar', [
             CalendarController::class,
             'index'
         ])->name('calendar');
+
+        Route::post('/calendar/entries', [
+            CalendarEntryController::class,
+            'store'
+        ])->name('calendar.entries.store');
+
+        Route::patch('/calendar/entries/{entry}', [
+            CalendarEntryController::class,
+            'update'
+        ])->name('calendar.entries.update');
+
+        Route::delete('/calendar/entries/{entry}', [
+            CalendarEntryController::class,
+            'destroy'
+        ])->name('calendar.entries.destroy');
+
+        Route::patch('/calendar/reservations/{reservation}/remarks', [
+            CalendarEntryController::class,
+            'remarks'
+        ])->name('calendar.remarks');
 
     });
 

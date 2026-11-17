@@ -85,14 +85,21 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center gap-5">
-                        <a href="{{ route('admin.calendar') }}"
-                            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                            View Calendar →
-                        </a>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+                        {{-- Search: results open on the Manage Reservations page --}}
+                        <form method="GET" action="{{ route('admin.reservations.index') }}" class="flex gap-2">
+                            <input type="search" name="q"
+                                placeholder="Search ID, name, department, venue..."
+                                class="w-full rounded-md border-gray-300 text-sm shadow-sm sm:w-72"
+                                aria-label="Search reservations">
+                            <button type="submit"
+                                class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                                Search
+                            </button>
+                        </form>
 
                         <a href="{{ route('admin.reservations.index') }}"
-                            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                            class="whitespace-nowrap text-sm font-medium text-indigo-600 hover:text-indigo-800">
                             Manage Reservations →
                         </a>
                     </div>
@@ -117,6 +124,9 @@
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Submitted
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -166,10 +176,28 @@
                                             : 'N/A' }}
                                     </td>
 
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                        @if ($reservation->status === 'pending')
+                                            <div class="flex items-center gap-2">
+                                                <a href="{{ route('reservations.print', $reservation) }}"
+                                                    target="_blank" rel="noopener"
+                                                    class="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">
+                                                    View form
+                                                </a>
+                                                <a href="{{ route('admin.reservations.index', ['q' => '#'.$reservation->id]) }}"
+                                                    class="rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700">
+                                                    Review →
+                                                </a>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
+
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">
+                                    <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">
                                         No reservations have been submitted yet.
                                     </td>
                                 </tr>

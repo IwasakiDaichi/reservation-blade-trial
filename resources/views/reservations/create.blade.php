@@ -117,7 +117,7 @@
                             <option value="Campus Gym" @selected(old('venue') === 'Campus Gym')>UB Cardinals Gym — 2,000–2,500 capacity</option>
                             <option value="RCB Dome" @selected(old('venue') === 'RCB Dome')>RCB Dome — 200 armchairs</option>
                             <option value="FGB Hall" @selected(old('venue') === 'FGB Hall')>FGB Hall — 150–200 capacity</option>
-                            <option value="Centenial Hall" @selected(old('venue') === 'Centenial Hall')>Centennial Hall — 100–150 capacity</option>
+                            <option value="Centennial Hall" @selected(old('venue') === 'Centennial Hall')>Centennial Hall — 100–150 capacity</option>
                             <option value="AMS Hall" @selected(old('venue') === 'AMS Hall')>AMS Hall — 120 armchairs</option>
                             <option value="Legacy" @selected(old('venue') === 'Legacy')>Legacy Multipurpose Hall — 150–300 capacity</option>
                             <option value="UB Student Center" @selected(old('venue') === 'UB Student Center')>UB Student Center — 100 capacity</option>

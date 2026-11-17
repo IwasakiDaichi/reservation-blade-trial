@@ -14,6 +14,47 @@
                 </div>
             @endif
 
+            {{-- Search and filter --}}
+            <form method="GET" action="{{ route('admin.reservations.index') }}"
+                class="mb-4 flex flex-col gap-3 rounded-lg bg-white p-4 shadow-sm sm:flex-row sm:items-end">
+                <div class="flex-1">
+                    <label for="q" class="block text-sm font-medium text-gray-700">Search</label>
+                    <input id="q" type="search" name="q" value="{{ $search }}"
+                        placeholder="Reservation ID, applicant name or email, department, venue, purpose..."
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="">All</option>
+                        <option value="pending" @selected($status === 'pending')>Pending</option>
+                        <option value="approved" @selected($status === 'approved')>Approved</option>
+                        <option value="rejected" @selected($status === 'rejected')>Rejected</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                        Search
+                    </button>
+                    @if ($search !== '' || $status !== '')
+                        <a href="{{ route('admin.reservations.index') }}"
+                            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                            Clear
+                        </a>
+                    @endif
+                </div>
+            </form>
+
+            @if ($search !== '' || $status !== '')
+                <p class="mb-3 text-sm text-gray-600">
+                    {{ $reservations->count() }} {{ \Illuminate\Support\Str::plural('result', $reservations->count()) }}
+                    @if ($search !== '') for "<strong>{{ $search }}</strong>" @endif
+                    @if ($status !== '') · status: {{ ucfirst($status) }} @endif
+                </p>
+            @endif
+
             <div class="overflow-x-auto rounded-lg bg-white shadow-sm">
                 <table class="w-full text-left">
                     <thead class="bg-gray-100">
@@ -36,6 +77,7 @@
                                     <div class="text-sm text-gray-500">
                                         {{ $reservation->user->email ?? '' }}
                                     </div>
+                                    <div class="text-xs text-gray-400">Reservation #{{ $reservation->id }}</div>
                                 </td>
 
                                 <td class="p-3">{{ $reservation->department }}</td>
@@ -175,7 +217,11 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="p-6 text-center text-gray-500">
-                                    No reservations have been submitted yet.
+                                    @if ($search !== '' || $status !== '')
+                                        No reservations match your search.
+                                    @else
+                                        No reservations have been submitted yet.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse

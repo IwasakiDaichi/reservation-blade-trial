@@ -94,7 +94,7 @@ class ReservationFormPdf
             ['Campus Gym',       'UB Cardinals Gym (2,000-2,500)'],
             ['RCB Dome',         'RCB Dome (300 armchairs)'],
             ['FGB Hall',         'FGB Hall (150-200)'],
-            ['Centenial Hall',   'Centenial Hall (100-150)'],
+            ['Centennial Hall',  'Centennial Hall (100-150)'],
             ['AMS Hall',         'AMS Hall (120 armchairs)'],
             ['Legacy',           'Legacy-multipurpose Hall (150-300)'],
             ['UB Student Center','UB Student Center (100)'],
