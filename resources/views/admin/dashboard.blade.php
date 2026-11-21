@@ -148,7 +148,7 @@
                                     </td>
 
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        {{ $reservation->venue_name ?? $reservation->venue ?? 'N/A' }}
+                                        {{ $reservation->venueName() }}
                                     </td>
 
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
@@ -169,6 +169,10 @@
                                         @elseif ($reservation->status === 'rejected')
                                             <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                                                 Rejected
+                                            </span>
+                                        @elseif ($reservation->status === 'cancelled')
+                                            <span class="rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                                                Cancelled
                                             </span>
                                         @else
                                             <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">

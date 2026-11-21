@@ -28,7 +28,7 @@
     {{-- Student Profile Completion Popup --}}
     @if (
         auth()->user()->role === 'student' &&
-        (blank(auth()->user()->department) || blank(auth()->user()->mobile_number))
+        (blank(auth()->user()->department_id) || blank(auth()->user()->mobile_number))
     )
         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
 
@@ -47,8 +47,8 @@
                     @method('PATCH')
 
                                         @php
-                        $departments = config('departments');
-                        $currentDepartment = old('department', auth()->user()->department);
+                        $departments = \App\Models\Department::listedNames();
+                        $currentDepartment = old('department', auth()->user()->department?->name);
                         $isOther = old('department') === 'Others'
                             || (filled($currentDepartment) && ! in_array($currentDepartment, $departments, true));
                         $otherValue = old('department_other', $isOther && $currentDepartment !== 'Others' ? $currentDepartment : '');

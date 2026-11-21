@@ -1,5 +1,4 @@
 @php
-    $venues      = config('venues.venues');
     $fallback    = config('venues.default');
     $defaultDate = now()->isSameMonth($month) ? now()->toDateString() : $month->startOfMonth()->toDateString();
 @endphp
@@ -49,7 +48,7 @@
     {{-- Legend --}}
     <div class="mb-4 flex flex-wrap items-center gap-2">
         @foreach ($venues as $v)
-            <span class="rounded-md px-3 py-1 text-xs font-bold" style="background-color: {{ $v['bg'] }}; color: {{ $v['text'] }}">{{ $v['label'] }}</span>
+            <span class="rounded-md px-3 py-1 text-xs font-bold" style="background-color: {{ $v->calendar_color }}; color: {{ $v->calendar_text_color ?: '#111827' }}">{{ $v->calendarLabel() }}</span>
         @endforeach
         <span class="rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-600">PENDING / NOT YET CONFIRMED</span>
     </div>
@@ -158,7 +157,7 @@
                     <label for="f_venue" class="mb-1 block text-sm font-semibold">Venue</label>
                     <input id="f_venue" name="venue" type="text" maxlength="255" list="venueList" placeholder="e.g. OUTSIDE" class="w-full rounded-lg border border-slate-300 px-3 py-2">
                     <datalist id="venueList">
-                        @foreach (collect($venues)->pluck('label')->unique() as $label)
+                        @foreach ($venues->map->calendarLabel()->unique() as $label)
                             <option value="{{ $label }}"></option>
                         @endforeach
                         <option value="OUTSIDE"></option>

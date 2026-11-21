@@ -53,6 +53,15 @@
                         :active="request()->routeIs('reservations.create')">
                         Make a Reservation
                     </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('notifications.index')"
+                        :active="request()->routeIs('notifications.index')">
+                        Notifications
+                        @if (($unreadCount = auth()->user()->unreadNotifications()->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-bold text-white">{{ $unreadCount }}</span>
+                        @endif
+                    </x-nav-link>
                 @endif
             </div>
 
@@ -160,6 +169,12 @@
                     :href="route('reservations.create')"
                     :active="request()->routeIs('reservations.create')">
                     Make a Reservation
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('notifications.index')"
+                    :active="request()->routeIs('notifications.index')">
+                    Notifications
                 </x-responsive-nav-link>
             @endif
         </div>

@@ -86,7 +86,7 @@
                             </a>
 
                             @if ($venue->isReservable())
-                                <a href="{{ route('reservations.create') }}"
+                                <a href="{{ route('reservations.create', ['venue' => $venue->id]) }}"
                                     class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
                                     Reserve
                                 </a>

@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\SignatureRole;
+use App\Enums\VenueStatus;
 use App\Models\Reservation;
+use App\Models\Venue;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -76,7 +79,7 @@ class ReservationFormPdf
 
         $this->drawSideBySideField($pdf,
             'Name of Applicant', $reservation->user->name, $lw,
-            'Department', $reservation->department, $rw
+            'Department', $reservation->department?->name ?? '', $rw
         );
         $this->drawSideBySideField($pdf,
             'Date Applied', $reservation->created_at?->format('m/d/Y') ?? '', $lw,
@@ -85,26 +88,31 @@ class ReservationFormPdf
         $this->drawFullWidthField($pdf, 'Event Title/Purpose', $reservation->purpose ?? '');
     }
 
+    /** Capacity in plain ASCII, e.g. "2,000-2,500" (the PDF font cannot print en dashes). */
+    private function capacityText(Venue $venue): string
+    {
+        if ($venue->capacity_min && $venue->capacity_min !== $venue->capacity_max) {
+            return number_format($venue->capacity_min).'-'.number_format($venue->capacity_max);
+        }
+
+        return number_format($venue->capacity_max);
+    }
+
     private function drawVenueSection(Fpdi $pdf, Reservation $reservation): void
     {
         $pdf->SetFont('Arial', 'B', 8.5);
         $pdf->Cell(0, 5, 'Venue (Capacity)', 0, 1);
 
-        $venueOptions = [
-            ['Campus Gym',       'UB Cardinals Gym (2,000-2,500)'],
-            ['RCB Dome',         'RCB Dome (300 armchairs)'],
-            ['FGB Hall',         'FGB Hall (150-200)'],
-            ['Centennial Hall',  'Centennial Hall (100-150)'],
-            ['AMS Hall',         'AMS Hall (120 armchairs)'],
-            ['Legacy',           'Legacy-multipurpose Hall (150-300)'],
-            ['UB Student Center','UB Student Center (100)'],
-            ['Alumni AVR',       'Alumni AVR (55)'],
-            ['Centennial AVR',   'Centennial AVR (35)'],
-        ];
+        // Options come from the venues table (deactivated venues only if this reservation used one).
+        $venueOptions = Venue::query()
+            ->where(fn ($q) => $q->where('status', '!=', VenueStatus::Deactivated->value)
+                ->orWhere('id', $reservation->venue_id))
+            ->orderBy('id')
+            ->get()
+            ->map(fn (Venue $v) => [$v->id, $v->name.' ('.$this->capacityText($v).')'])
+            ->all();
 
-        $storedVenue   = $reservation->venue ?? '';
-        $knownVenues   = array_column($venueOptions, 0);
-        $isOtherVenue  = $storedVenue === 'Other' || (!in_array($storedVenue, $knownVenues, true) && $storedVenue !== '');
+        $isOtherVenue = $reservation->venue_id === null;
 
         // Draw 3-column checkbox grid
         $colW = self::CW / 3;
@@ -112,7 +120,7 @@ class ReservationFormPdf
             $y = $pdf->GetY();
             foreach ($row as $col => [$value, $label]) {
                 $x       = self::MARGIN + ($col * $colW);
-                $checked = strtolower($storedVenue) === strtolower($value);
+                $checked = $reservation->venue_id === $value;
 
                 // Checkbox square
                 $pdf->SetDrawColor(0, 0, 0);
@@ -130,7 +138,7 @@ class ReservationFormPdf
 
         // Others row
         $otherLabel   = 'Others (pls. specify)';
-        $otherValue   = $reservation->other_venue ?? ($isOtherVenue ? $storedVenue : '');
+        $otherValue   = $isOtherVenue ? ($reservation->other_venue ?? '') : '';
         $y            = $pdf->GetY() + 0.5;
         $xOther       = self::MARGIN + 1;
 
@@ -197,9 +205,9 @@ class ReservationFormPdf
     $y += 4.5;
 
     $equip = [
-        ['Sound System',   $reservation->sound_system_details ?: ($reservation->sound_system ? 'Yes' : '')],
-        ['Microphone',     $reservation->microphone_details   ?: ($reservation->microphone   ? 'Yes' : '')],
-        ['LED Video Wall', $reservation->video_wall_details   ?: ($reservation->video_wall   ? 'Yes' : '')],
+        ['Sound System',   $reservation->equipmentDetails('sound-system')   ?: ($reservation->hasEquipment('sound-system')   ? 'Yes' : '')],
+        ['Microphone',     $reservation->equipmentDetails('microphone')     ?: ($reservation->hasEquipment('microphone')     ? 'Yes' : '')],
+        ['LED Video Wall', $reservation->equipmentDetails('led-video-wall') ?: ($reservation->hasEquipment('led-video-wall') ? 'Yes' : '')],
     ];
     foreach ($equip as [$label, $val]) {
         $pdf->SetFont('Arial', '', 8);
@@ -276,12 +284,12 @@ foreach ($otherLines as $i => $line) {
     $y += 4.5;
 
     $physical = [
-        ['Flags (UB and Phils.)',         $reservation->flags            ? 'Yes' : 'No'],
-        ['Podium',                        $reservation->podium           ? 'Yes' : 'No'],
-        ['Number of Platform',            $reservation->platform         ? 'Yes' : 'No'],
-        ['Number of Tables',              (string) ($reservation->tables ?? '')],
-        ['Number of Chairs',              (string) ($reservation->chairs ?? '')],
-        ['Removal of Rings-Goal (GYM)',   $reservation->removal_of_rings ? 'Yes' : 'No'],
+        ['Flags (UB and Phils.)',         $reservation->hasEquipment('flags')            ? 'Yes' : 'No'],
+        ['Podium',                        $reservation->hasEquipment('podium')           ? 'Yes' : 'No'],
+        ['Number of Platform',            $reservation->hasEquipment('platform')         ? 'Yes' : 'No'],
+        ['Number of Tables',              (string) $reservation->equipmentQuantity('tables')],
+        ['Number of Chairs',              (string) $reservation->equipmentQuantity('chairs')],
+        ['Removal of Rings-Goal (GYM)',   $reservation->hasEquipment('removal-of-rings') ? 'Yes' : 'No'],
     ];
     foreach ($physical as $i => [$label, $val]) {
         $pdf->SetFont('Arial', '', 8);
@@ -393,10 +401,10 @@ foreach ($otherLines as $i => $line) {
             $lw,
             $sigH,
             'Signature over printed name of Applicant',
-            $reservation->applicant_signature_path,
+            $reservation->signaturePath(SignatureRole::Applicant),
             $reservation->user?->name
         );
-        $this->drawSignatureCell($pdf, $rx, $y, $rw, $sigH, 'Signature over printed name of Security personnel', $reservation->security_signature_path);
+        $this->drawSignatureCell($pdf, $rx, $y, $rw, $sigH, 'Signature over printed name of Security personnel', $reservation->signaturePath(SignatureRole::Security));
         $pdf->SetY($y + $sigH + 1.5);
 
         // Row 2: Endorsed by (left) | Reservation Officer (right)
@@ -412,16 +420,16 @@ foreach ($otherLines as $i => $line) {
         $pdf->SetXY($rx, $y);
         $pdf->Cell(28, 5, 'Reservation Officer:', 0, 0);
         $roLineX = $rx + 28;
-        if ($reservation->reservation_officer_signature_path) {
-            $this->addSignature($pdf, $reservation->reservation_officer_signature_path, $roLineX, $y, $rw - 28, 4);
+        if ($reservation->signaturePath(SignatureRole::ReservationOfficer)) {
+            $this->addSignature($pdf, $reservation->signaturePath(SignatureRole::ReservationOfficer), $roLineX, $y, $rw - 28, 4);
         }
         $pdf->SetDrawColor(0, 0, 0);
         $pdf->Line($roLineX, $y + 4.5, $rx + $rw - 2, $y + 4.5);
 
         // Dean/Director signature (left)
         $y2 = $y + 5;
-        if ($reservation->endorsement_signature_path) {
-            $this->addSignature($pdf, $reservation->endorsement_signature_path, $lx, $y2, $lw - 4, 9);
+        if ($reservation->signaturePath(SignatureRole::Endorsement)) {
+            $this->addSignature($pdf, $reservation->signaturePath(SignatureRole::Endorsement), $lx, $y2, $lw - 4, 9);
         }
         $pdf->SetDrawColor(0, 0, 0);
         $pdf->Line($lx, $y2 + 9, $lx + $lw - 4, $y2 + 9);
@@ -442,8 +450,8 @@ foreach ($otherLines as $i => $line) {
 
         // CPDO Director signature
         $y4 = $y3 + 5;
-        if ($reservation->approval_signature_path) {
-            $this->addSignature($pdf, $reservation->approval_signature_path, $rx, $y4, $rw - 2, 9);
+        if ($reservation->signaturePath(SignatureRole::Approval)) {
+            $this->addSignature($pdf, $reservation->signaturePath(SignatureRole::Approval), $rx, $y4, $rw - 2, 9);
         }
         $pdf->Line($rx, $y4 + 9, $rx + $rw - 2, $y4 + 9);
         $pdf->SetFont('Arial', 'B', 7.5);
@@ -516,8 +524,8 @@ foreach ($otherLines as $i => $line) {
         $lx   = self::MARGIN;
         $sigH = 18;
 
-        if ($reservation->applicant_signature_path) {
-            $this->addSignature($pdf, $reservation->applicant_signature_path, $lx, $y, $lw - 4, 12);
+        if ($reservation->signaturePath(SignatureRole::Applicant)) {
+            $this->addSignature($pdf, $reservation->signaturePath(SignatureRole::Applicant), $lx, $y, $lw - 4, 12);
         }
         $pdf->SetDrawColor(0, 0, 0);
         $pdf->Line($lx, $y + 12, $lx + $lw - 4, $y + 12);

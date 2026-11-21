@@ -15,24 +15,27 @@ class VenueSeeder extends Seeder
     public function run(): void
     {
         $venues = [
-            ['UB Cardinals Gym',        2000, 2500, null],
-            ['RCB Dome',                null, 200,  'Seating: 200 armchairs.'],
-            ['FGB Hall',                150,  200,  null],
-            ['Centennial Hall',         100,  150,  null],
-            ['AMS Hall',                null, 120,  'Seating: 120 armchairs.'],
-            ['Legacy Multipurpose Hall', 150, 300,  null],
-            ['UB Student Center',       null, 100,  null],
-            ['Alumni AVR',              null, 55,   null],
-            ['Centennial AVR',          null, 35,   null],
+            ['UB Cardinals Gym',        2000, 2500, null,                      'UB GYM',          '#FF00FF', '#111827'],
+            ['RCB Dome',                null, 200,  'Seating: 200 armchairs.', 'RCB DOME',        '#00FFFF', '#111827'],
+            ['FGB Hall',                150,  200,  null,                      'FGB HALL',        '#93C47D', '#111827'],
+            ['Centennial Hall',         100,  150,  null,                      'CENTENNIAL HALL', '#FF9900', '#111827'],
+            ['AMS Hall',                null, 120,  'Seating: 120 armchairs.', 'AMS HALL',        '#4A86E8', '#FFFFFF'],
+            ['Legacy Multipurpose Hall', 150, 300,  null,                      'LEGACY HALL',     '#C27BA0', '#111827'],
+            ['UB Student Center',       null, 100,  null,                      'STUDENT CENTER',  '#FFFF00', '#111827'],
+            ['Alumni AVR',              null, 55,   null,                      'ALUMNI AVR',      '#00FF00', '#111827'],
+            ['Centennial AVR',          null, 35,   null,                      'CENTENNIAL AVR',  '#FF9900', '#111827'],
         ];
 
-        foreach ($venues as [$name, $min, $max, $description]) {
+        foreach ($venues as [$name, $min, $max, $description, $short, $bg, $text]) {
             Venue::firstOrCreate(
                 ['name' => $name],
                 [
                     'capacity_min' => $min,
                     'capacity_max' => $max,
                     'description' => $description,
+                    'short_name' => $short,
+                    'calendar_color' => $bg,
+                    'calendar_text_color' => $text,
                     'status' => VenueStatus::Active,
                 ]
             );

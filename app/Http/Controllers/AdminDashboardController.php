@@ -16,12 +16,12 @@ class AdminDashboardController extends Controller
 
         $rejectedReservations = Reservation::where('status', 'rejected')->count();
 
-        $recentReservations = Reservation::with('user')
+        $recentReservations = Reservation::with('user', 'venue', 'department')
             ->latest()
             ->take(5)
             ->get();
 
-        $upcomingReservations = Reservation::with('user')
+        $upcomingReservations = Reservation::with('user', 'venue', 'department')
             ->where('status', 'approved')
             ->whereDate('reserved_date', '>=', today())
             ->orderBy('reserved_date')

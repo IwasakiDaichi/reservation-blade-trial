@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\VenueStatus;
+use App\Models\Department;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -126,7 +127,7 @@ class VenueTest extends TestCase
     {
         return User::factory()->create([
             'role' => 'student',
-            'department' => 'Engineering',
+            'department_id' => Department::factory()->create()->id,
             'mobile_number' => '555-0134',
         ]);
     }

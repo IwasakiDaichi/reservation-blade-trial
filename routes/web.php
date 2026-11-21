@@ -12,6 +12,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CalendarEntryController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\AdminVenueController;
+use App\Http\Controllers\NotificationController;
 
 // Public landing page
 Route::get('/', function () {
@@ -80,6 +81,23 @@ Route::middleware([
         'store'
     ])->name('reservations.store');
 
+    // Student cancels their own reservation, and asks to talk to a double-booking holder
+    Route::patch('/reservations/{reservation}/cancel', [
+        ReservationController::class,
+        'cancel'
+    ])->name('reservations.cancel');
+
+    Route::post('/reservations/contact', [
+        ReservationController::class,
+        'contact'
+    ])->name('reservations.contact');
+
+    // Messages from CPDO
+    Route::get('/notifications', [
+        NotificationController::class,
+        'index'
+    ])->name('notifications.index');
+
     // Browse venues and see their details
     Route::get('/venues', [
         VenueController::class,
@@ -119,6 +137,12 @@ Route::middleware([
             AdminReservationController::class,
             'updateSignatures'
         ])->name('reservations.signatures.update');
+
+        // CPDO cancels a reservation (with a reason the student can read)
+        Route::patch('/reservations/{reservation}/cancel', [
+            AdminReservationController::class,
+            'cancel'
+        ])->name('reservations.cancel');
 
         // Approve or reject reservations
         Route::patch('/reservations/{reservation}/{status}', [

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -10,68 +11,86 @@ class ProfileTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_profile_page_is_displayed(): void
+    private function student(array $attributes = []): User
     {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->get('/profile');
-
-        $response->assertOk();
+        return User::factory()->create(array_merge(['role' => 'student'], $attributes));
     }
 
-    public function test_profile_information_can_be_updated(): void
+    public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $this->actingAs($this->student())->get('/profile')->assertOk();
+    }
 
-        $response = $this
-            ->actingAs($user)
+    public function test_student_can_update_department_and_mobile_number(): void
+    {
+        $user = $this->student();
+        $department = Department::factory()->create();
+
+        $this->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
-
-        $response
+                'department' => $department->name,
+                'mobile_number' => '09171234567',
+            ])
             ->assertSessionHasNoErrors()
             ->assertRedirect('/profile');
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->assertSame($department->id, $user->department_id);
+        $this->assertSame('09171234567', $user->mobile_number);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_a_department_typed_under_others_is_saved_once_and_reused(): void
     {
-        $user = User::factory()->create();
+        $first = $this->student();
+        $second = $this->student();
+        $before = Department::count();
 
-        $response = $this
-            ->actingAs($user)
+        foreach ([$first, $second] as $user) {
+            $this->actingAs($user)
+                ->patch('/profile', [
+                    'department' => 'Others',
+                    'department_other' => 'Student Council',
+                    'mobile_number' => '09171234567',
+                ])
+                ->assertSessionHasNoErrors();
+        }
+
+        $this->assertSame($before + 1, Department::count());
+        $this->assertSame('Student Council', $first->refresh()->department->name);
+        $this->assertSame($first->department_id, $second->refresh()->department_id);
+        $this->assertFalse($first->department->is_listed);
+    }
+
+    public function test_name_and_email_cannot_be_changed_from_the_profile(): void
+    {
+        $user = $this->student();
+        $name = $user->name;
+        $email = $user->email;
+
+        $this->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
-
-        $response
+                'name' => 'Someone Else',
+                'email' => 'someone@example.com',
+                'department' => Department::factory()->create()->name,
+                'mobile_number' => '09171234567',
+            ])
             ->assertSessionHasNoErrors()
             ->assertRedirect('/profile');
 
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $user->refresh();
+
+        $this->assertSame($name, $user->name);
+        $this->assertSame($email, $user->email);
+        $this->assertNotNull($user->email_verified_at);
     }
 
     public function test_user_can_delete_their_account(): void
     {
-        $user = User::factory()->create();
+        $user = $this->student();
 
-        $response = $this
-            ->actingAs($user)
-            ->delete('/profile', [
-                'password' => 'password',
-            ]);
-
-        $response
+        $this->actingAs($user)
+            ->delete('/profile', ['password' => 'password'])
             ->assertSessionHasNoErrors()
             ->assertRedirect('/');
 
@@ -81,16 +100,11 @@ class ProfileTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
-        $user = User::factory()->create();
+        $user = $this->student();
 
-        $response = $this
-            ->actingAs($user)
+        $this->actingAs($user)
             ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
-
-        $response
+            ->delete('/profile', ['password' => 'wrong-password'])
             ->assertSessionHasErrorsIn('userDeletion', 'password')
             ->assertRedirect('/profile');
 

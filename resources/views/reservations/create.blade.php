@@ -19,18 +19,18 @@
             <ol class="mt-5 border-l border-slate-700">
                 <li class="reservation-progress-item reservation-progress-current" data-progress-step="0" aria-current="step">
                     <span class="reservation-progress-marker">1</span>
-                    <span class="block text-sm font-medium">Reservation details</span>
-                    <span class="mt-1 block text-xs text-slate-400">Venue, schedule, and setup</span>
-                </li>
-                <li class="reservation-progress-item" data-progress-step="1">
-                    <span class="reservation-progress-marker">2</span>
                     <span class="block text-sm font-medium">Terms and conditions</span>
                     <span class="mt-1 block text-xs text-slate-400">Review venue use requirements</span>
                 </li>
-                <li class="reservation-progress-item" data-progress-step="2">
-                    <span class="reservation-progress-marker">3</span>
+                <li class="reservation-progress-item" data-progress-step="1">
+                    <span class="reservation-progress-marker">2</span>
                     <span class="block text-sm font-medium">Policies and guidelines</span>
                     <span class="mt-1 block text-xs text-slate-400">Review venue use policies</span>
+                </li>
+                <li class="reservation-progress-item" data-progress-step="2">
+                    <span class="reservation-progress-marker">3</span>
+                    <span class="block text-sm font-medium">Reservation details</span>
+                    <span class="mt-1 block text-xs text-slate-400">Venue, schedule, and setup</span>
                 </li>
                 <li class="reservation-progress-item" data-progress-step="3">
                     <span class="reservation-progress-marker">4</span>
@@ -42,7 +42,7 @@
 
         <div class="mt-10 hidden border-t border-slate-700 pt-5 lg:block">
             <p class="text-sm font-semibold">Before you submit</p>
-            <p class="mt-2 text-sm leading-6 text-slate-300">Review your venue, schedule, and setup details before submission.</p>
+            <p class="mt-2 text-sm leading-6 text-slate-300">Read the terms and policies, then review your venue, schedule, and setup details before submission.</p>
         </div>
     </aside>
 
@@ -61,10 +61,50 @@
         </div>
         @endif
 
+        @if (session('conflicts'))
+        <div id="conflict-panel" class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-5 text-amber-950" role="alert">
+            <p class="font-bold">This venue is already booked</p>
+            @foreach (session('conflicts') as $conflict)
+                <div class="mt-3 border-t border-amber-200 pt-3 first:mt-2 first:border-0 first:pt-0">
+                    <p class="text-sm leading-6">
+                        Unfortunately, <strong>{{ $conflict['venue'] }}</strong> is reserved on <strong>{{ $conflict['when'] }}</strong>
+                        for <strong>&ldquo;{{ $conflict['purpose'] }}&rdquo;</strong>.
+                        Would you like to have a conversation with them regarding the booking?
+                    </p>
+
+                    @php $shared = session('contact_info.'.$conflict['id']); @endphp
+                    @if ($shared)
+                        <div class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
+                            <p>You can reach <strong>{{ $shared['name'] }}</strong> at
+                                <a href="mailto:{{ $shared['email'] }}" class="font-semibold underline">{{ $shared['email'] }}</a>.
+                            </p>
+                            <p class="mt-1 text-xs">They were also told that you would like to talk, and your name and email were shared with them.</p>
+                        </div>
+                    @else
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <form method="POST" action="{{ route('reservations.contact') }}">
+                                @csrf
+                                <input type="hidden" name="reservation_id" value="{{ $conflict['id'] }}">
+                                <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+                                    Yes, give me their email
+                                </button>
+                            </form>
+                            <button type="button" onclick="document.getElementById('conflict-panel').remove()"
+                                class="rounded-md border border-amber-400 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+                                No, I will choose another date or venue
+                            </button>
+                        </div>
+                        <p class="mt-2 text-xs">If you say yes, your name and email will also be given to them.</p>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+        @endif
+
         <header class="mb-8 border-b border-slate-200 pb-6">
             <p class="text-sm font-medium text-blue-800">Step 1 of 4</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Request a venue reservation</h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Start with your event details, venue, schedule, and setup needs. You will review the terms, policies, and confirmation details before submission.</p>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Read the terms and policies first, then enter your venue, schedule, and setup details. You will confirm and sign before submission.</p>
         </header>
 
         @php
@@ -74,7 +114,7 @@
                 $initialStep = 3;
             } elseif ($errors->hasAny([
                 'purpose',
-                'venue',
+                'venue_id',
                 'otherVenue',
                 'reservationType',
                 'reservedDate',
@@ -92,121 +132,17 @@
                 'tables',
                 'chairs',
                 'otherRequrements1',
-            ])) {
-                $initialStep = 0;
+            ]) || session('conflicts')) {
+                $initialStep = 2;
             }
         @endphp
 
         <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
         @csrf
         <div class="wizard-step space-y-6" data-step="0">
-        <section id="applicant-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
-                    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
-                        <div>
-                        <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                    </div>
-                </section>
-            
-                <section id="venue-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span><div><h2 class="text-xl font-bold">Venue Selection</h2><p class="mt-1 text-sm text-slate-500">Choose the venue for your event.</p></div></div>
-                    <div class="p-5 sm:p-7">
-                        <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
-                        <select id="venue" name="venue" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
-                            <option value="">Choose a venue</option>
-                            <option value="Campus Gym" @selected(old('venue') === 'Campus Gym')>UB Cardinals Gym — 2,000–2,500 capacity</option>
-                            <option value="RCB Dome" @selected(old('venue') === 'RCB Dome')>RCB Dome — 200 armchairs</option>
-                            <option value="FGB Hall" @selected(old('venue') === 'FGB Hall')>FGB Hall — 150–200 capacity</option>
-                            <option value="Centennial Hall" @selected(old('venue') === 'Centennial Hall')>Centennial Hall — 100–150 capacity</option>
-                            <option value="AMS Hall" @selected(old('venue') === 'AMS Hall')>AMS Hall — 120 armchairs</option>
-                            <option value="Legacy" @selected(old('venue') === 'Legacy')>Legacy Multipurpose Hall — 150–300 capacity</option>
-                            <option value="UB Student Center" @selected(old('venue') === 'UB Student Center')>UB Student Center — 100 capacity</option>
-                            <option value="Alumni AVR" @selected(old('venue') === 'Alumni AVR')>Alumni AVR — 55 capacity</option>
-                            <option value="Centennial AVR" @selected(old('venue') === 'Centennial AVR')>Centennial AVR — 35 capacity</option>
-                            <option value="Other" @selected(old('venue') === 'Other')>Other venue</option>
-                        </select>
-                        @error('venue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                        <div id="other-venue-wrap" class="mt-5 {{ old('venue') === 'Other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                    </div>
-                </section>
-            
-                <section id="schedule-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Schedule</h2><p class="mt-1 text-sm text-slate-500">Choose one day or a continuous date range.</p></div></div>
-                    <div class="p-5 sm:p-7">
-                        <fieldset><legend class="mb-3 text-sm font-semibold">Reservation Duration <b class="text-red-600">*</b></legend>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="singleDay" type="radio" name="reservationType" value="single" @checked(old('reservationType', 'single') === 'single') class="mt-1 h-4 w-4"><span><b class="block">One Day</b><span class="mt-1 block text-sm text-slate-500">Reserve for a single date.</span></span></label>
-                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="multipleDays" type="radio" name="reservationType" value="multiple" @checked(old('reservationType') === 'multiple') class="mt-1 h-4 w-4"><span><b class="block">Multiple Days</b><span class="mt-1 block text-sm text-slate-500">Reserve across a date range.</span></span></label>
-                            </div>
-                            @error('reservationType')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
-                        </fieldset>
-                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ now()->toDateString() }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Weekend rules can be adjusted after CPDO clarification.</p></div>
-                       <div class="mt-5 grid gap-5 sm:grid-cols-2">
-            <div>
-                <label for="startTime" class="mb-2 block text-sm font-semibold">
-                    Start Time <b class="text-red-600">*</b>
-                </label>
-                <input
-                    id="startTime"
-                    name="startTime"
-                    type="time"
-                    value="{{ old('startTime') }}"
-                    required
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3"
-                >
-                @error('startTime')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        
-            <div>
-                <label for="endTime" class="mb-2 block text-sm font-semibold">
-                    End Time <b class="text-red-600">*</b>
-                </label>
-                <input
-                    id="endTime"
-                    name="endTime"
-                    type="time"
-                    value="{{ old('endTime') }}"
-                    required
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3"
-                >
-                @error('endTime')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-                    </div>
-                </section>
-            
-                <section id="requirements-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">04</span><div><h2 class="text-xl font-bold">Equipment and Physical Setup</h2><p class="mt-1 text-sm text-slate-500">Add the equipment and setup items required.</p></div></div>
-                    <div class="p-5 sm:p-7">
-                        <h3 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">Equipment</h3>
-                        <div class="grid gap-5 sm:grid-cols-3">
-                            <div><label for="soundSystem" class="mb-2 block text-sm font-semibold">Sound System</label><input id="soundSystem" name="soundSystem" value="{{ old('soundSystem') }}" placeholder="e.g. 1 set" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
-                            <div><label for="microphone" class="mb-2 block text-sm font-semibold">Microphone</label><input id="microphone" name="microphone" value="{{ old('microphone') }}" placeholder="e.g. 2 units" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
-                            <div><label for="videoWall" class="mb-2 block text-sm font-semibold">LED Video Wall</label><input id="videoWall" name="videoWall" value="{{ old('videoWall') }}" placeholder="Specify requirement" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
-                        </div>
-                        <div class="mt-8 border-t border-slate-100 pt-6"><h3 class="font-bold">Physical Setup</h3><p class="mt-1 text-sm text-slate-500">Select items and enter quantities as needed.</p>
-                            <div class="mt-4 flex flex-wrap gap-3">
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="flags" name="flags" type="checkbox" value="Yes" @checked(old('flags') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Flags (UB and Philippines)</span></label>
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="podium" name="podium" type="checkbox" value="Yes" @checked(old('podium') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Podium</span></label>
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
-                            </div>
-                            <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
-                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div></div>
-                        </div>
-                        <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                    </div>
-                </section>
-        </div>
-        
-        <div class="wizard-step space-y-6 hidden" data-step="1">
             <section id="agreement-section" class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span>
                     <div>
                         <h2 class="text-xl font-bold">Terms and Conditions</h2>
                         <p class="mt-1 text-sm text-slate-500">Please read the applicable conditions carefully.</p>
@@ -247,10 +183,10 @@
         </div>
 
         
-        <div class="wizard-step space-y-6 hidden" data-step="2">
+        <div class="wizard-step space-y-6 hidden" data-step="1">
             <section class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span>
                     <div>
                         <h2 class="text-xl font-bold">Policies and Guidelines</h2>
                         <p class="mt-1 text-sm text-slate-500">The following policies must be strictly followed.</p>
@@ -301,6 +237,116 @@
             </section>
         </div>
 
+        <div class="wizard-step space-y-6 hidden" data-step="2">
+            <div class="rounded-xl border border-amber-300 bg-amber-50 p-5 text-sm leading-6 text-amber-950" role="note">
+                <p class="font-bold">Please read before you reserve</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                    <li>Reservations must be made at least <strong>two (2) weeks</strong> before the event. The earliest date you can choose is <strong>{{ \Carbon\Carbon::parse($earliestDate)->format('F j, Y') }}</strong>.</li>
+                    <li>Student activities cannot be held on <strong>Sundays or holidays</strong>.</li>
+                    <li>You may cancel up to <strong>{{ config('reservation.cancellation_notice_days') }} days</strong> before the reserved date. CPDO may also cancel a reservation, for example when a venue goes under maintenance, and will tell you why.</li>
+                    <li><strong>Double booking:</strong> if another reservation already has the same venue, date and time, we will tell you and ask if you would like to talk to that person. If you say yes, your name and email will be shared with them, and theirs with you, so you can discuss the booking.</li>
+                </ul>
+            </div>
+        <section id="applicant-section" class="reservation-card">
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
+                    <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
+                        <div>
+                        <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                    </div>
+                </section>
+            
+                <section id="venue-section" class="reservation-card">
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">04</span><div><h2 class="text-xl font-bold">Venue Selection</h2><p class="mt-1 text-sm text-slate-500">Choose the venue for your event.</p></div></div>
+                    <div class="p-5 sm:p-7">
+                        <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
+                        <select id="venue" name="venue_id" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
+                            <option value="">Choose a venue</option>
+                            @foreach ($venues as $venue)
+                                <option value="{{ $venue->id }}" data-name="{{ $venue->name }}" data-capacity="{{ $venue->capacity_max }}"
+                                    @disabled(! $venue->isReservable()) @selected((string) $selectedVenue === (string) $venue->id)>
+                                    {{ $venue->name }} — {{ $venue->capacityLabel() }} capacity{{ $venue->isReservable() ? '' : ' (under maintenance)' }}
+                                </option>
+                            @endforeach
+                            <option value="other" @selected((string) $selectedVenue === 'other')>Other venue</option>
+                        </select>
+                        @error('venue_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        <div id="other-venue-wrap" class="mt-5 {{ (string) $selectedVenue === 'other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                    </div>
+                </section>
+            
+                <section id="schedule-section" class="reservation-card">
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">05</span><div><h2 class="text-xl font-bold">Reservation Schedule</h2><p class="mt-1 text-sm text-slate-500">Choose one day or a continuous date range.</p></div></div>
+                    <div class="p-5 sm:p-7">
+                        <fieldset><legend class="mb-3 text-sm font-semibold">Reservation Duration <b class="text-red-600">*</b></legend>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="singleDay" type="radio" name="reservationType" value="single" @checked(old('reservationType', 'single') === 'single') class="mt-1 h-4 w-4"><span><b class="block">One Day</b><span class="mt-1 block text-sm text-slate-500">Reserve for a single date.</span></span></label>
+                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="multipleDays" type="radio" name="reservationType" value="multiple" @checked(old('reservationType') === 'multiple') class="mt-1 h-4 w-4"><span><b class="block">Multiple Days</b><span class="mt-1 block text-sm text-slate-500">Reserve across a date range.</span></span></label>
+                            </div>
+                            @error('reservationType')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+                        </fieldset>
+                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', $earliestDate) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Weekend rules can be adjusted after CPDO clarification.</p></div>
+                       <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="startTime" class="mb-2 block text-sm font-semibold">
+                    Start Time <b class="text-red-600">*</b>
+                </label>
+                <input
+                    id="startTime"
+                    name="startTime"
+                    type="time"
+                    value="{{ old('startTime') }}"
+                    required
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3"
+                >
+                @error('startTime')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+        
+            <div>
+                <label for="endTime" class="mb-2 block text-sm font-semibold">
+                    End Time <b class="text-red-600">*</b>
+                </label>
+                <input
+                    id="endTime"
+                    name="endTime"
+                    type="time"
+                    value="{{ old('endTime') }}"
+                    required
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3"
+                >
+                @error('endTime')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
+                    </div>
+                </section>
+            
+                <section id="requirements-section" class="reservation-card">
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">06</span><div><h2 class="text-xl font-bold">Equipment and Physical Setup</h2><p class="mt-1 text-sm text-slate-500">Add the equipment and setup items required.</p></div></div>
+                    <div class="p-5 sm:p-7">
+                        <h3 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">Equipment</h3>
+                        <div class="grid gap-5 sm:grid-cols-3">
+                            <div><label for="soundSystem" class="mb-2 block text-sm font-semibold">Sound System</label><input id="soundSystem" name="soundSystem" value="{{ old('soundSystem') }}" placeholder="e.g. 1 set" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                            <div><label for="microphone" class="mb-2 block text-sm font-semibold">Microphone</label><input id="microphone" name="microphone" value="{{ old('microphone') }}" placeholder="e.g. 2 units" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                            <div><label for="videoWall" class="mb-2 block text-sm font-semibold">LED Video Wall</label><input id="videoWall" name="videoWall" value="{{ old('videoWall') }}" placeholder="Specify requirement" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                        </div>
+                        <div class="mt-8 border-t border-slate-100 pt-6"><h3 class="font-bold">Physical Setup</h3><p class="mt-1 text-sm text-slate-500">Select items and enter quantities as needed.</p>
+                            <div class="mt-4 flex flex-wrap gap-3">
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="flags" name="flags" type="checkbox" value="Yes" @checked(old('flags') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Flags (UB and Philippines)</span></label>
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="podium" name="podium" type="checkbox" value="Yes" @checked(old('podium') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Podium</span></label>
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
+                            </div>
+                            <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div></div>
+                        </div>
+                        <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                    </div>
+                </section>
+        </div>
+        
         <div class="wizard-step space-y-6 hidden" data-step="3">
             <section class="reservation-card">
                 <div class="border-b border-slate-100 px-5 py-5 sm:px-7">
@@ -311,6 +357,10 @@
                 </div>
             
                 <div class="space-y-5 p-5 sm:p-7">
+                            <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950" role="note">
+                                <p class="font-semibold">Please read</p>
+                                <p class="mt-1">If another user's reservation overlaps with yours (a double booking), your name and email may be given to that user so the two of you can talk about the booking, and theirs to you. CPDO may also cancel a reservation and will tell you why.</p>
+                            </div>
                             <label for="agreed"
                                 class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-4">
                                 <input id="agreed"
@@ -622,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateVenueFields() {
         if (!venueSelect) return;
 
-        const showOther = venueSelect.value === 'Other';
+        const showOther = venueSelect.value === 'other';
 
         otherVenueWrap.classList.toggle('hidden', !showOther);
 
@@ -632,7 +682,8 @@ document.addEventListener('DOMContentLoaded', function () {
             otherVenueInput.value = '';
         }
 
-        const isGym = venueSelect.value.toLowerCase().includes('gym');
+        const chosen = venueSelect.options[venueSelect.selectedIndex];
+        const isGym = (chosen?.dataset.name || '').toLowerCase().includes('gym');
 
         removalContainer.classList.toggle('hidden', !isGym);
 

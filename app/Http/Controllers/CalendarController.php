@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CalendarEntry;
 use App\Models\Reservation;
+use App\Models\Venue;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
@@ -24,22 +25,26 @@ class CalendarController extends Controller
         $monthEnd   = $month->endOfMonth();
 
         $days = [];
+        $venues = Venue::orderBy('name')->get();
 
         // ---- Reservations -------------------------------------------------
         $reservations = Reservation::query()
+            ->with('venue', 'department')
             ->whereIn('status', self::VISIBLE_STATUSES)
             ->whereRaw('DATE(COALESCE(start_date, reserved_date)) <= ?', [$monthEnd->toDateString()])
             ->whereRaw('DATE(COALESCE(end_date, reserved_date)) >= ?', [$monthStart->toDateString()])
             ->get();
 
         foreach ($reservations as $r) {
-            $label = $r->venue === 'Other'
-                ? ($r->other_venue ?: 'Other')
-                : (config("venues.venues.{$r->venue}.label") ?? $r->venue);
+            $label = $r->venue ? $r->venue->calendarLabel() : ($r->other_venue ?: 'Other');
 
-            $auto = $r->status === 'approved'
-                ? 'OK WITH RESERVATION ' . ($r->approved_at ?? $r->updated_at)->format('n/j/Y')
-                : 'Pending';
+            $affected = $r->affectedByMaintenance();
+
+            $auto = $affected
+                ? 'VENUE UNDER MAINTENANCE - TO BE RESCHEDULED'
+                : ($r->status === 'approved'
+                    ? 'OK WITH RESERVATION ' . ($r->approved_at ?? $r->updated_at)->format('n/j/Y')
+                    : 'Pending');
 
             $remarks = filled($r->calendar_remarks) ? $r->calendar_remarks : $auto;
 
@@ -51,10 +56,10 @@ class CalendarController extends Controller
                 $monthEnd,
                 [
                     'activity'   => $r->purpose,
-                    'department' => $r->department,
+                    'department' => $r->department?->name,
                     'time'       => $this->timeText($r->start_time, $r->end_time, $r->time),
                     'venue'      => $label,
-                    'color'      => $r->status === 'approved' ? $this->colorFor($r->venue) : null,
+                    'color'      => ($r->status === 'approved' && ! $affected) ? $r->venue?->calendarColors() : null,
                     'remarks'    => $remarks,
                     'sort'       => (string) $r->start_time,
                     'edit'       => [
@@ -89,7 +94,7 @@ class CalendarController extends Controller
                     'department' => $e->department,
                     'time'       => $this->timeText($startTime, $endTime, ''),
                     'venue'      => $e->venue,
-                    'color'      => $this->colorFor($e->venue, true),
+                    'color'      => $this->colorFor($venues, $e->venue),
                     'remarks'    => $e->remarks,
                     'sort'       => $startTime,
                     'edit'       => [
@@ -119,6 +124,7 @@ class CalendarController extends Controller
 
         return view('calendar.index', [
             'days'  => $days,
+            'venues' => $venues->filter(fn ($v) => $v->calendarColors() !== null)->values(),
             'month' => $month,
             'prev'  => $month->subMonth()->format('Y-m'),
             'next'  => $month->addMonth()->format('Y-m'),
@@ -143,31 +149,19 @@ class CalendarController extends Controller
         }
     }
 
-    /**
-     * Venue color from config/venues.php.
-     * $matchByLabel lets manually typed venues like "UB GYM" use the same color.
-     */
-    private function colorFor(?string $venue, bool $matchByLabel = false): ?array
+    /** Colors for a manually typed venue, matched by name or short name (case-insensitive). */
+    private function colorFor($venues, ?string $typed): ?array
     {
-        if (blank($venue)) {
+        if (blank($typed)) {
             return null;
         }
 
-        $venues = config('venues.venues');
+        $typed = trim($typed);
 
-        if (isset($venues[$venue])) {
-            return ['bg' => $venues[$venue]['bg'], 'text' => $venues[$venue]['text']];
-        }
+        $match = $venues->first(fn ($v) => strcasecmp($v->name, $typed) === 0
+            || strcasecmp((string) $v->short_name, $typed) === 0);
 
-        if ($matchByLabel) {
-            foreach ($venues as $key => $v) {
-                if (strcasecmp(trim($venue), $v['label']) === 0 || strcasecmp(trim($venue), $key) === 0) {
-                    return ['bg' => $v['bg'], 'text' => $v['text']];
-                }
-            }
-        }
-
-        return null;
+        return $match?->calendarColors();
     }
 
     private function timeText($start, $end, ?string $fallback): string

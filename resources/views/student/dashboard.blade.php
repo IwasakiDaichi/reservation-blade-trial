@@ -33,7 +33,7 @@
     {{-- Student Profile Completion Popup --}}
     @if (
         auth()->user()->role === 'student' &&
-        (blank(auth()->user()->department) || blank(auth()->user()->mobile_number))
+        (blank(auth()->user()->department_id) || blank(auth()->user()->mobile_number))
     )
         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
 
@@ -60,7 +60,7 @@
                             type="text"
                             id="department"
                             name="department"
-                            value="{{ old('department', auth()->user()->department) }}"
+                            value="{{ old('department', auth()->user()->department?->name) }}"
                             required
                             maxlength="255"
                             class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"

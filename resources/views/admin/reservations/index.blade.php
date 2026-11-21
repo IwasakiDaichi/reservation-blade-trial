@@ -8,6 +8,12 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4">
 
+            @if (session('error'))
+                <div class="mb-4 rounded bg-red-100 p-4 text-red-800">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if (session('success'))
                 <div class="mb-4 rounded bg-green-100 p-4 text-green-800">
                     {{ session('success') }}
@@ -31,6 +37,7 @@
                         <option value="pending" @selected($status === 'pending')>Pending</option>
                         <option value="approved" @selected($status === 'approved')>Approved</option>
                         <option value="rejected" @selected($status === 'rejected')>Rejected</option>
+                        <option value="cancelled" @selected($status === 'cancelled')>Cancelled</option>
                     </select>
                 </div>
 
@@ -80,11 +87,11 @@
                                     <div class="text-xs text-gray-400">Reservation #{{ $reservation->id }}</div>
                                 </td>
 
-                                <td class="p-3">{{ $reservation->department }}</td>
+                                <td class="p-3">{{ $reservation->department?->name }}</td>
 
                                 <td class="p-3">
-                                    {{ $reservation->venue }}
-                                    @if ($reservation->other_venue)
+                                    {{ $reservation->venue?->name ?? 'Other venue' }}
+                                    @if (! $reservation->venue && $reservation->other_venue)
                                         <div class="text-sm text-gray-500">
                                             {{ $reservation->other_venue }}
                                         </div>
@@ -109,7 +116,15 @@
 
                                 <td class="p-3">{{ $reservation->purpose }}</td>
 
-                                <td class="p-3">{{ ucfirst($reservation->status) }}</td>
+                                <td class="p-3">
+                                    {{ ucfirst($reservation->status) }}
+                                    @if ($reservation->status === 'cancelled')
+                                        <div class="text-xs text-gray-500">by {{ $reservation->cancelled_by === 'cpdo' ? 'CPDO' : 'the student' }}</div>
+                                    @endif
+                                    @if ($reservation->affectedByMaintenance())
+                                        <div class="mt-1 text-xs font-semibold text-amber-700">Venue under maintenance</div>
+                                    @endif
+                                </td>
 
                                 <td class="p-3">
                                     @if ($reservation->status === 'pending')
@@ -201,6 +216,22 @@
                                         </div>
                                     @else
                                         <span class="text-gray-500">Reviewed</span>
+                                    @endif
+
+                                    @if (in_array($reservation->status, ['pending', 'approved'], true))
+                                        <details class="mt-2">
+                                            <summary class="cursor-pointer text-sm font-semibold text-red-700 underline">Cancel reservation</summary>
+                                            <form method="POST" action="{{ route('admin.reservations.cancel', $reservation) }}" class="mt-2 space-y-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <textarea name="cancellation_reason" required maxlength="2000" rows="3"
+                                                    placeholder="Reason shown to the student..."
+                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm"></textarea>
+                                                <button type="submit" class="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
+                                                    Cancel and notify student
+                                                </button>
+                                            </form>
+                                        </details>
                                     @endif
                                     <div class="mt-3 flex flex-col items-start gap-2">
                                         <a href="{{ route('reservations.print', $reservation) }}" target="_blank" rel="noopener"

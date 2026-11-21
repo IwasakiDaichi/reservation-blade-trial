@@ -6,6 +6,7 @@ use App\Enums\VenueStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Venue extends Model
 {
@@ -23,6 +24,9 @@ class Venue extends Model
         'status',
         'status_note',
         'available_from',
+        'short_name',
+        'calendar_color',
+        'calendar_text_color',
     ];
 
     protected function casts(): array
@@ -42,6 +46,30 @@ class Venue extends Model
             'status',
             array_map(fn (VenueStatus $status) => $status->value, VenueStatus::visibleToStudents())
         );
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    /** Name used on the Calendar of Activities, e.g. "UB GYM". */
+    public function calendarLabel(): string
+    {
+        return $this->short_name ?: strtoupper($this->name);
+    }
+
+    /** Calendar colors, or null when this venue has no color. */
+    public function calendarColors(): ?array
+    {
+        if (blank($this->calendar_color)) {
+            return null;
+        }
+
+        return [
+            'bg' => $this->calendar_color,
+            'text' => $this->calendar_text_color ?: '#111827',
+        ];
     }
 
     public function isReservable(): bool

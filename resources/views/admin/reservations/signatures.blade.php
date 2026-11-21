@@ -34,16 +34,12 @@
                     @csrf
                     @method('PUT')
 
-                    @foreach ([
-                        'security_signature' => ['Security personnel', 'security_signature_path'],
-                        'endorsement_signature' => ['Dean / Director / Head of Office', 'endorsement_signature_path'],
-                        'reservation_officer_signature' => ['Reservation officer', 'reservation_officer_signature_path'],
-                        'approval_signature' => ['CPDO Director (approval)', 'approval_signature_path'],
-                    ] as $field => [$label, $pathAttribute])
+                    @foreach (\App\Enums\SignatureRole::staff() as $role)
+                        @php $field = $role->fileField(); @endphp
                         <div>
                             <label for="{{ $field }}" class="block text-sm font-semibold text-gray-800">
-                                {{ $label }}
-                                @if ($reservation->{$pathAttribute})
+                                {{ $role->label() }}
+                                @if ($reservation->signaturePath($role))
                                     <span class="ml-1 font-normal text-green-700">Signature uploaded</span>
                                 @else
                                     <span class="ml-1 font-normal text-gray-500">Not uploaded</span>

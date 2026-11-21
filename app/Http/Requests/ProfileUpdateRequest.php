@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
+use App\Models\Department;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +21,7 @@ class ProfileUpdateRequest extends FormRequest
     
         return [
             'department' => $isStudent
-                ? ['nullable', 'string', Rule::in([...config('departments'), 'Others'])]
+                ? ['nullable', 'string', Rule::in([...Department::listedNames(), 'Others'])]
                 : ['prohibited'],
     
             'department_other' => [

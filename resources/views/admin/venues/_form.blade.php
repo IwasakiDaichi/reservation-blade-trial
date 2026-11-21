@@ -17,6 +17,40 @@
         <x-input-error class="mt-2" :messages="$errors->get('name')" />
     </div>
 
+    {{-- Calendar --}}
+    <div class="rounded-lg border border-gray-200 p-4"
+        x-data="{ useColor: @js((bool) old('use_calendar_color', filled($venue->calendar_color))) }">
+        <p class="text-sm font-semibold text-gray-800">Calendar of Activities</p>
+        <p class="mt-1 text-xs text-gray-500">How this venue appears on the calendar once a reservation is approved.</p>
+
+        <div class="mt-3 grid gap-4 sm:grid-cols-2">
+            <div>
+                <x-input-label for="short_name" value="Short name (optional)" />
+                <x-text-input id="short_name" name="short_name" type="text" class="mt-1 block w-full"
+                    :value="old('short_name', $venue->short_name)" maxlength="50" placeholder="e.g. UB GYM" />
+                <x-input-error class="mt-2" :messages="$errors->get('short_name')" />
+            </div>
+
+            <div>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="use_calendar_color" value="1" x-model="useColor" class="rounded border-gray-300">
+                    Give this venue a calendar color
+                </label>
+
+                <div x-show="useColor" x-cloak class="mt-2 flex items-center gap-3">
+                    <input type="color" name="calendar_color" value="{{ old('calendar_color', $venue->calendar_color ?? '#4A86E8') }}"
+                        class="h-10 w-14 rounded border border-gray-300">
+                    <select name="calendar_text_color" class="rounded-md border-gray-300 text-sm shadow-sm">
+                        @php $textColor = old('calendar_text_color', $venue->calendar_text_color ?? '#111827'); @endphp
+                        <option value="#111827" @selected($textColor === '#111827')>Dark text</option>
+                        <option value="#FFFFFF" @selected($textColor === '#FFFFFF')>White text</option>
+                    </select>
+                </div>
+                <x-input-error class="mt-2" :messages="$errors->get('calendar_color')" />
+            </div>
+        </div>
+    </div>
+
     {{-- Location --}}
     <div>
         <x-input-label for="location" value="Location (building / floor)" />
