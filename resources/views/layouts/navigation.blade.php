@@ -29,7 +29,19 @@
                         :active="request()->routeIs('admin.reservations.*')">
                         Manage Reservation
                     </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('admin.venues.index')"
+                        :active="request()->routeIs('admin.venues.*')">
+                        Venues
+                    </x-nav-link>
                 @else
+                    <x-nav-link
+                        :href="route('venues.index')"
+                        :active="request()->routeIs('venues.*')">
+                        Venues
+                    </x-nav-link>
+
                     <x-nav-link
                         :href="route('reservations.index')"
                         :active="request()->routeIs('reservations.index')">
@@ -125,7 +137,19 @@
                     :active="request()->routeIs('admin.reservations.*')">
                     Admin Dashboard
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.venues.index')"
+                    :active="request()->routeIs('admin.venues.*')">
+                    Venues
+                </x-responsive-nav-link>
             @else
+                <x-responsive-nav-link
+                    :href="route('venues.index')"
+                    :active="request()->routeIs('venues.*')">
+                    Venues
+                </x-responsive-nav-link>
+
                 <x-responsive-nav-link
                     :href="route('reservations.index')"
                     :active="request()->routeIs('reservations.index')">

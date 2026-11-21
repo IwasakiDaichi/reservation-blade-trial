@@ -13,6 +13,11 @@
         </p>
 
         <div class="mt-4 flex flex-wrap gap-4">
+            <a href="{{ route('venues.index') }}"
+               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                Browse Venues
+            </a>
+
             <a href="{{ route('reservations.index') }}"
                class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                 My Reservations

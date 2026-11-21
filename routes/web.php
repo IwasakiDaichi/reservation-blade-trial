@@ -10,6 +10,8 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CalendarEntryController;
+use App\Http\Controllers\VenueController;
+use App\Http\Controllers\AdminVenueController;
 
 // Public landing page
 Route::get('/', function () {
@@ -78,6 +80,17 @@ Route::middleware([
         'store'
     ])->name('reservations.store');
 
+    // Browse venues and see their details
+    Route::get('/venues', [
+        VenueController::class,
+        'index'
+    ])->name('venues.index');
+
+    Route::get('/venues/{venue}', [
+        VenueController::class,
+        'show'
+    ])->name('venues.show');
+
 });
 
 // CPDO Admin routes
@@ -145,6 +158,15 @@ Route::middleware([
             CalendarEntryController::class,
             'remarks'
         ])->name('calendar.remarks');
+
+        // Venue management (details and Active / Maintenance / Deactivated)
+        Route::resource('venues', AdminVenueController::class)
+            ->except(['show', 'destroy']);
+
+        Route::patch('/venues/{venue}/status', [
+            AdminVenueController::class,
+            'status'
+        ])->name('venues.status');
 
     });
 
