@@ -8,6 +8,7 @@ RUN npm ci
 COPY resources ./resources
 COPY public ./public
 COPY vite.config.js ./
+COPY postcss.config.js tailwind.config.js ./
 RUN npm run build
 
 FROM php:8.4-apache
