@@ -9,7 +9,7 @@
         <div class="mx-auto max-w-4xl space-y-6 px-4 sm:px-6 lg:px-8">
             <div class="border-b border-slate-200 pb-6">
                 <p class="text-sm leading-6 text-slate-600">
-                    Update your contact details and password settings.
+                    {{ auth()->user()->role === 'cpdo_admin' ? 'Update your contact details and password settings.' : 'Update your contact details.' }}
                 </p>
             </div>
                 @if (session('error'))
@@ -23,17 +23,19 @@
                 </div>
             </section>
 
-            <section class="profile-card">
-                <div class="max-w-2xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </section>
+            @if (auth()->user()->role === 'cpdo_admin')
+                <section class="profile-card">
+                    <div class="max-w-2xl">
+                        @include('profile.partials.update-password-form')
+                    </div>
+                </section>
 
-            <section class="profile-card">
-                <div class="max-w-2xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </section>
+                <section class="profile-card">
+                    <div class="max-w-2xl">
+                        @include('profile.partials.delete-user-form')
+                    </div>
+                </section>
+            @endif
         </div>
     </div>
 </x-app-layout>

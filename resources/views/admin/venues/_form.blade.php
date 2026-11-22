@@ -81,7 +81,7 @@
     <div>
         <x-input-label for="description" value="Description" />
         <textarea id="description" name="description" rows="4" maxlength="5000"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $venue->description) }}</textarea>
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]">{{ old('description', $venue->description) }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('description')" />
     </div>
 
@@ -90,7 +90,7 @@
         <x-input-label for="amenities" value="Amenities (one per line)" />
         <textarea id="amenities" name="amenities" rows="4" maxlength="3000"
             placeholder="Air conditioning&#10;Projector&#10;Sound system"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('amenities', $venue->amenities) }}</textarea>
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]">{{ old('amenities', $venue->amenities) }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('amenities')" />
     </div>
 
@@ -98,7 +98,7 @@
     <div>
         <x-input-label for="rules" value="Rules and notes" />
         <textarea id="rules" name="rules" rows="3" maxlength="3000"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('rules', $venue->rules) }}</textarea>
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]">{{ old('rules', $venue->rules) }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('rules')" />
     </div>
 
@@ -125,7 +125,7 @@
     <div class="rounded-lg border border-gray-200 p-4">
         <x-input-label for="status" value="Status" />
         <select id="status" name="status" x-model="status"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64">
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24] sm:w-64">
             @foreach (\App\Enums\VenueStatus::cases() as $case)
                 <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach

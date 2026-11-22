@@ -7,7 +7,7 @@
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <div class="space-y-3">
                 @forelse ($notifications as $notification)
-                    <article class="rounded-lg border {{ $notification->read_at ? 'border-slate-200 bg-white' : 'border-indigo-200 bg-indigo-50' }} p-4 shadow-sm">
+                    <article class="rounded-lg border {{ $notification->read_at ? 'border-slate-200 bg-white' : 'border-[#F1C9CC] bg-[#FFF1F2]' }} p-4 shadow-sm">
                         <div class="flex items-start justify-between gap-3">
                             <h3 class="text-sm font-semibold text-slate-900">{{ $notification->data['title'] ?? 'Notice' }}</h3>
                             <time class="shrink-0 text-xs text-slate-500" datetime="{{ $notification->created_at->toIso8601String() }}">
@@ -16,7 +16,7 @@
                         </div>
                         <p class="mt-2 text-sm leading-6 text-slate-700">{{ $notification->data['message'] ?? '' }}</p>
                         @if (! empty($notification->data['url']))
-                            <a href="{{ $notification->data['url'] }}" class="mt-2 inline-block text-sm font-semibold text-blue-800 underline">Open</a>
+                            <a href="{{ $notification->data['url'] }}" class="mt-2 inline-block text-sm font-semibold text-[#B21F24] underline">Open</a>
                         @endif
                     </article>
                 @empty
