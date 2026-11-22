@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CalendarEntry;
 use App\Models\Reservation;
+use App\Models\Venue;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 class CalendarController extends Controller
 {
-    /** Only reservations with these statuses appear on the calendar. */
-    private const VISIBLE_STATUSES = ['approved'];
+    /** Reservations with these statuses appear on the calendar (only 'approved' ones are colored). */
+    private const VISIBLE_STATUSES = ['approved', 'pending'];
 
     public function index(Request $request)
     {
@@ -22,44 +24,220 @@ class CalendarController extends Controller
         $monthStart = $month->startOfMonth();
         $monthEnd   = $month->endOfMonth();
 
+        $days = [];
+        $venues = Venue::orderBy('name')->get();
+
+        // Venue filter (students' reservations at venues typed under "Other" have their own box). Venues that share a calendar color (e.g. Centennial Hall and Centennial AVR)
+        // get one checkbox together. No "filtered" flag = show everything.
+        $filterVenues = $venues->filter(fn ($v) => $v->calendarColors() !== null)->values();
+        $groups = $this->venueGroups($venues);
+        $selected = null;
+
+        if ($request->boolean('filtered')) {
+            $selected = collect((array) $request->query('venues', []))
+                ->map(fn ($v) => (string) $v)
+                ->values()
+                ->all();
+        }
+
+        $selectedIds = $selected === null ? [] : $groups
+            ->filter(fn ($g) => in_array($g['value'], $selected, true))
+            ->flatMap(fn ($g) => $g['ids'])
+            ->all();
+
+        // "other" = reservations and typed rows for venues that are not in the venue list.
+        $otherTicked = $selected !== null && in_array('other', $selected, true);
+
+        // With every box ticked nothing is hidden.
+        $filtering = $selected !== null
+            && (! $otherTicked || count(array_diff($venues->pluck('id')->all(), $selectedIds)) > 0);
+        $wanted = fn (?int $venueId): bool => ! $filtering
+            || ($venueId === null ? $otherTicked : in_array($venueId, $selectedIds, true));
+
+        // ---- Reservations -------------------------------------------------
         $reservations = Reservation::query()
+            ->with('venue', 'department')
             ->whereIn('status', self::VISIBLE_STATUSES)
             ->whereRaw('DATE(COALESCE(start_date, reserved_date)) <= ?', [$monthEnd->toDateString()])
             ->whereRaw('DATE(COALESCE(end_date, reserved_date)) >= ?', [$monthStart->toDateString()])
             ->get();
 
-        // Build [ 'Y-m-d' => [ entry, entry, ... ] ], repeating multi-day reservations on each day.
-        $days = [];
-
-        foreach ($reservations as $reservation) {
-            $first = CarbonImmutable::parse(($reservation->start_date ?? $reservation->reserved_date)->toDateString());
-            $last  = CarbonImmutable::parse(($reservation->end_date ?? $reservation->reserved_date)->toDateString());
-            $total = (int) round($first->diffInDays($last)) + 1;
-
-            $from = max($first->toDateString(), $monthStart->toDateString());
-            $to   = min($last->toDateString(), $monthEnd->toDateString());
-
-            for ($d = CarbonImmutable::parse($from); $d->toDateString() <= $to; $d = $d->addDay()) {
-                $days[$d->toDateString()][] = [
-                    'reservation' => $reservation,
-                    'day_number'  => (int) round($first->diffInDays($d)) + 1,
-                    'total_days'  => $total,
-                ];
+        foreach ($reservations as $r) {
+            if (! $wanted($r->venue_id)) {
+                continue;
             }
+
+            $label = $r->venue ? $r->venue->calendarLabel() : ($r->other_venue ?: 'Other');
+
+            $affected = $r->affectedByMaintenance();
+
+            $auto = $affected
+                ? 'VENUE UNDER MAINTENANCE - TO BE RESCHEDULED'
+                : ($r->status === 'approved'
+                    ? 'OK WITH RESERVATION ' . ($r->approved_at ?? $r->updated_at)->format('n/j/Y')
+                    : 'Pending');
+
+            $remarks = filled($r->calendar_remarks) ? $r->calendar_remarks : $auto;
+
+            $this->spread(
+                $days,
+                ($r->start_date ?? $r->reserved_date)->toDateString(),
+                ($r->end_date ?? $r->reserved_date)->toDateString(),
+                $monthStart,
+                $monthEnd,
+                [
+                    'activity'   => $r->purpose,
+                    'department' => $r->department?->name,
+                    'time'       => $this->timeText($r->start_time, $r->end_time, $r->time),
+                    'venue'      => $label,
+                    'color'      => ($r->status === 'approved' && ! $affected) ? $r->venue?->calendarColors() : null,
+                    'remarks'    => $remarks,
+                    'sort'       => (string) $r->start_time,
+                    'edit'       => [
+                        'kind'    => 'reservation',
+                        'action'  => route('admin.calendar.remarks', $r),
+                        'summary' => $r->purpose . ' — ' . $label,
+                        'remarks' => $remarks,
+                        'auto'    => $auto,
+                    ],
+                ]
+            );
         }
 
+        // ---- Manually typed rows -----------------------------------------
+        $entries = CalendarEntry::query()
+            ->whereRaw('DATE(start_date) <= ?', [$monthEnd->toDateString()])
+            ->whereRaw('DATE(COALESCE(end_date, start_date)) >= ?', [$monthStart->toDateString()])
+            ->get();
+
+        foreach ($entries as $e) {
+            if (! $wanted($this->matchVenue($venues, $e->venue)?->id)) {
+                continue;
+            }
+
+            $startTime = $e->start_time ? substr((string) $e->start_time, 0, 5) : '';
+            $endTime   = $e->end_time ? substr((string) $e->end_time, 0, 5) : '';
+
+            $this->spread(
+                $days,
+                $e->start_date->toDateString(),
+                ($e->end_date ?? $e->start_date)->toDateString(),
+                $monthStart,
+                $monthEnd,
+                [
+                    'activity'   => $e->activity,
+                    'department' => $e->department,
+                    'time'       => $this->timeText($startTime, $endTime, ''),
+                    'venue'      => $e->venue,
+                    'color'      => $this->colorFor($venues, $e->venue),
+                    'remarks'    => $e->remarks,
+                    'sort'       => $startTime,
+                    'edit'       => [
+                        'kind'       => 'manual',
+                        'update_url' => route('admin.calendar.entries.update', $e),
+                        'delete_url' => route('admin.calendar.entries.destroy', $e),
+                        'start_date' => $e->start_date->toDateString(),
+                        'end_date'   => $e->end_date?->toDateString() ?? '',
+                        'start_time' => $startTime,
+                        'end_time'   => $endTime,
+                        'activity'   => $e->activity,
+                        'department' => $e->department ?? '',
+                        'venue'      => $e->venue ?? '',
+                        'remarks'    => $e->remarks ?? '',
+                    ],
+                ]
+            );
+        }
+
+        // ---- Sort ---------------------------------------------------------
         ksort($days);
 
-        foreach ($days as $date => $entries) {
-            usort($entries, fn ($a, $b) => strcmp((string) $a['reservation']->start_time, (string) $b['reservation']->start_time));
-            $days[$date] = $entries;
+        foreach ($days as $date => $list) {
+            usort($list, fn ($a, $b) => strcmp($a['sort'], $b['sort']));
+            $days[$date] = $list;
         }
 
         return view('calendar.index', [
             'days'  => $days,
+            'venues' => $filterVenues,
+            'groups' => $groups,
+            'selected' => $selected,
             'month' => $month,
             'prev'  => $month->subMonth()->format('Y-m'),
             'next'  => $month->addMonth()->format('Y-m'),
         ]);
+    }
+
+    /** Repeat an entry on each day of its date range that falls inside the month. */
+    private function spread(array &$days, string $start, string $end, CarbonImmutable $monthStart, CarbonImmutable $monthEnd, array $base): void
+    {
+        $first = CarbonImmutable::parse($start);
+        $last  = CarbonImmutable::parse($end);
+        $total = (int) round($first->diffInDays($last)) + 1;
+
+        $from = max($first->toDateString(), $monthStart->toDateString());
+        $to   = min($last->toDateString(), $monthEnd->toDateString());
+
+        for ($d = CarbonImmutable::parse($from); $d->toDateString() <= $to; $d = $d->addDay()) {
+            $days[$d->toDateString()][] = $base + [
+                'day_number' => (int) round($first->diffInDays($d)) + 1,
+                'total_days' => $total,
+            ];
+        }
+    }
+
+    /** One filter checkbox per calendar color: [value, label, bg, text, ids]. */
+    private function venueGroups($venues)
+    {
+        return $venues
+            ->groupBy(fn ($v) => $v->calendar_color ? strtoupper($v->calendar_color) : 'venue-'.$v->id)
+            ->map(function ($group) {
+                $group = $group->sortByDesc('capacity_max')->values(); // biggest venue first
+                $first = $group->first();
+                $labels = $group->map->calendarLabel()->unique()->values();
+                $word = explode(' ', (string) $labels->first())[0];
+
+                // "CENTENNIAL HALL" + "CENTENNIAL AVR" -> "CENTENNIAL HALL / AVR"
+                $label = $labels->count() > 1 && $labels->every(fn ($l) => str_starts_with($l, $word.' '))
+                    ? $labels->first().' / '.$labels->skip(1)->map(fn ($l) => substr($l, strlen($word) + 1))->implode(' / ')
+                    : $labels->implode(' / ');
+
+                return [
+                    'value' => $group->pluck('id')->implode('-'),
+                    'label' => $label,
+                    'bg' => $first->calendar_color ?: '#FFFFFF',
+                    'text' => $first->calendar_text_color ?: '#111827',
+                    'ids' => $group->pluck('id')->all(),
+                ];
+            })
+            ->values();
+    }
+
+    /** The venue a manually typed name refers to, matched by name or short name (case-insensitive). */
+    private function matchVenue($venues, ?string $typed): ?Venue
+    {
+        if (blank($typed)) {
+            return null;
+        }
+
+        $typed = trim($typed);
+
+        return $venues->first(fn ($v) => strcasecmp($v->name, $typed) === 0
+            || strcasecmp((string) $v->short_name, $typed) === 0);
+    }
+
+    /** Colors for a manually typed venue. */
+    private function colorFor($venues, ?string $typed): ?array
+    {
+        return $this->matchVenue($venues, $typed)?->calendarColors();
+    }
+
+    private function timeText($start, $end, ?string $fallback): string
+    {
+        if ($start && $end) {
+            return CarbonImmutable::parse($start)->format('g:i A') . ' – ' . CarbonImmutable::parse($end)->format('g:i A');
+        }
+
+        return (string) $fallback;
     }
 }

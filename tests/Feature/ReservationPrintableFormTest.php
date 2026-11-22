@@ -3,14 +3,19 @@
 namespace Tests\Feature;
 
 use App\Models\Reservation;
+use App\Enums\SignatureRole;
+use App\Models\Department;
 use App\Models\User;
+use App\Models\Venue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\Concerns\PicksEventDates;
 use Tests\TestCase;
 
 class ReservationPrintableFormTest extends TestCase
 {
+    use PicksEventDates;
     use RefreshDatabase;
 
     public function test_owner_can_open_a_printable_copy_of_the_official_form(): void
@@ -89,9 +94,9 @@ class ReservationPrintableFormTest extends TestCase
 
         $this->actingAs($student)->post(route('reservations.store'), [
             'purpose' => 'Student organization event',
-            'venue' => 'Campus Gym',
+            'venue_id' => $this->gym()->id,
             'reservationType' => 'single',
-            'reservedDate' => now()->addDays(3)->toDateString(),
+            'reservedDate' => $this->eventDate(),
             'startTime' => '09:00',
             'endTime' => '10:00',
             'soundSystem' => 'Two sets',
@@ -100,8 +105,8 @@ class ReservationPrintableFormTest extends TestCase
         ])->assertRedirect(route('reservations.index'));
 
         $reservation = Reservation::query()->where('user_id', $student->id)->firstOrFail();
-        $this->assertSame('Two sets', $reservation->sound_system_details);
-        Storage::disk('local')->assertExists($reservation->applicant_signature_path);
+        $this->assertSame('Two sets', $reservation->equipmentDetails('sound-system'));
+        Storage::disk('local')->assertExists($reservation->signaturePath(SignatureRole::Applicant));
 
         $admin = User::factory()->create([
             'role' => 'cpdo_admin',
@@ -114,11 +119,10 @@ class ReservationPrintableFormTest extends TestCase
             'approval_signature' => UploadedFile::fake()->image('approval.png'),
         ])->assertRedirect(route('admin.reservations.signatures.edit', $reservation));
 
-        $reservation->refresh();
-        Storage::disk('local')->assertExists($reservation->security_signature_path);
-        Storage::disk('local')->assertExists($reservation->endorsement_signature_path);
-        Storage::disk('local')->assertExists($reservation->reservation_officer_signature_path);
-        Storage::disk('local')->assertExists($reservation->approval_signature_path);
+        $reservation->load('signatures');
+        foreach (SignatureRole::staff() as $role) {
+            Storage::disk('local')->assertExists($reservation->signaturePath($role));
+        }
 
         $this->actingAs($admin)
             ->get(route('reservations.print', $reservation))
@@ -132,9 +136,9 @@ class ReservationPrintableFormTest extends TestCase
 
         $response = $this->actingAs($student)->from(route('reservations.create'))->post(route('reservations.store'), [
             'purpose' => 'Student organization event',
-            'venue' => 'Campus Gym',
+            'venue_id' => $this->gym()->id,
             'reservationType' => 'single',
-            'reservedDate' => now()->addDays(3)->toDateString(),
+            'reservedDate' => $this->eventDate(),
             'startTime' => '09:00',
             'endTime' => '10:00',
             'agreed' => '1',
@@ -152,21 +156,29 @@ class ReservationPrintableFormTest extends TestCase
     {
         return User::factory()->create([
             'role' => 'student',
-            'department' => 'Engineering',
+            'department_id' => Department::factory()->create()->id,
             'mobile_number' => '555-0134',
         ]);
     }
 
+    private function gym(): Venue
+    {
+        return Venue::firstOrCreate(
+            ['name' => 'UB Cardinals Gym'],
+            ['capacity_min' => 2000, 'capacity_max' => 2500]
+        );
+    }
+
     private function reservationFor(User $user): Reservation
     {
-        $date = now()->addDays(3)->toDateString();
+        $date = $this->eventDate();
 
         return Reservation::create([
             'user_id' => $user->id,
-            'department' => $user->department,
+            'department_id' => $user->department_id,
             'mobile_number' => $user->mobile_number,
             'purpose' => 'Student organization event',
-            'venue' => 'Campus Gym',
+            'venue_id' => $this->gym()->id,
             'reserved_date' => $date,
             'time' => '09:00 - 10:00',
             'start_date' => $date,

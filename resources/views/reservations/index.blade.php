@@ -17,6 +17,19 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($reservations->contains(fn ($r) => $r->affectedByMaintenance()))
+                <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+                    <p class="font-semibold">One or more of your venues is under maintenance.</p>
+                    <p class="mt-1">CPDO will get in touch about rescheduling. You can also cancel the affected reservation below at any time.</p>
+                </div>
+            @endif
+
             <div class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <p class="text-sm text-slate-600">
@@ -53,7 +66,7 @@
                     <tbody class="divide-y divide-slate-200 text-slate-700">
                         @forelse ($reservations as $reservation)
                             <tr class="hover:bg-slate-50">
-                                <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-900 sm:px-6">{{ $reservation->venue }}</td>
+                                <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-900 sm:px-6">{{ $reservation->venueName() }}</td>
                                 <td class="whitespace-nowrap px-5 py-4 sm:px-6">
                                     {{ $reservation->reserved_date->format('M d, Y') }}
                                 </td>
@@ -64,10 +77,23 @@
                                             ? 'bg-emerald-100 text-emerald-800'
                                             : ($reservation->status === 'rejected'
                                                 ? 'bg-red-100 text-red-800'
-                                                : 'bg-amber-100 text-amber-800') }}">
+                                                : ($reservation->status === 'cancelled'
+                                                    ? 'bg-slate-200 text-slate-700'
+                                                    : 'bg-amber-100 text-amber-800')) }}">
                                         {{ ucfirst($reservation->status) }}
                                     </span>
                                     
+                                    @if ($reservation->affectedByMaintenance())
+                                        <p class="mt-2 text-xs font-semibold text-amber-700">Venue under maintenance</p>
+                                    @endif
+
+                                    @if ($reservation->status === 'cancelled' && $reservation->cancellation_reason)
+                                        <div class="mt-3 max-w-sm rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                                            <p class="font-semibold">Cancelled by {{ $reservation->cancelled_by === 'cpdo' ? 'CPDO' : 'you' }}</p>
+                                            <p class="mt-1">{{ $reservation->cancellation_reason }}</p>
+                                        </div>
+                                    @endif
+
                                     @if ($reservation->status === 'rejected' && $reservation->rejection_reason)
                                         <div class="mt-3 max-w-sm rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                                             <p class="font-semibold">Reason for rejection</p>
@@ -77,6 +103,19 @@
 
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-4 text-right sm:px-6">
+                                    @if ($reservation->canBeCancelledByOwner())
+                                        <form method="POST" action="{{ route('reservations.cancel', $reservation) }}" class="mb-2 inline"
+                                            onsubmit="return confirm('Cancel this reservation?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="inline-flex items-center rounded-md border border-red-600 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    @elseif (in_array($reservation->status, ['pending', 'approved'], true))
+                                        <span class="mr-2 text-xs text-slate-500">Cancellation closed {{ $reservation->cancellationDeadline()->format('M d') }}</span>
+                                    @endif
                                     <a href="{{ route('reservations.print', $reservation) }}"
                                         class="inline-flex items-center rounded-md border border-blue-700 px-3 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
                                         target="_blank" rel="noopener">

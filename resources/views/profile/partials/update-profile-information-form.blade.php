@@ -48,8 +48,8 @@
         </div>
         @if ($user->role === 'student')
                         @php
-                $departments = config('departments');
-                $currentDepartment = old('department', $user->department);
+                $departments = \App\Models\Department::listedNames();
+                $currentDepartment = old('department', $user->department?->name);
                 $isOther = old('department') === 'Others'
                     || (filled($currentDepartment) && ! in_array($currentDepartment, $departments, true));
                 $otherValue = old('department_other', $isOther && $currentDepartment !== 'Others' ? $currentDepartment : '');

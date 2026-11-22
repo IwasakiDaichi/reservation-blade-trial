@@ -9,6 +9,10 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\CalendarEntryController;
+use App\Http\Controllers\VenueController;
+use App\Http\Controllers\AdminVenueController;
+use App\Http\Controllers\NotificationController;
 
 // Public landing page
 Route::get('/', function () {
@@ -53,6 +57,12 @@ Route::middleware([
         'print'
     ])->name('reservations.print');
 
+    // Notices (students: messages from CPDO; CPDO: new requests and cancellations)
+    Route::get('/notifications', [
+        NotificationController::class,
+        'index'
+    ])->name('notifications.index');
+
 });
 
 // Student routes
@@ -76,6 +86,28 @@ Route::middleware([
         ReservationController::class,
         'store'
     ])->name('reservations.store');
+
+    // Student cancels their own reservation, and asks to talk to a double-booking holder
+    Route::patch('/reservations/{reservation}/cancel', [
+        ReservationController::class,
+        'cancel'
+    ])->name('reservations.cancel');
+
+    Route::post('/reservations/contact', [
+        ReservationController::class,
+        'contact'
+    ])->name('reservations.contact');
+
+    // Browse venues and see their details
+    Route::get('/venues', [
+        VenueController::class,
+        'index'
+    ])->name('venues.index');
+
+    Route::get('/venues/{venue}', [
+        VenueController::class,
+        'show'
+    ])->name('venues.show');
 
 });
 
@@ -106,6 +138,12 @@ Route::middleware([
             'updateSignatures'
         ])->name('reservations.signatures.update');
 
+        // CPDO cancels a reservation (with a reason the student can read)
+        Route::patch('/reservations/{reservation}/cancel', [
+            AdminReservationController::class,
+            'cancel'
+        ])->name('reservations.cancel');
+
         // Approve or reject reservations
         Route::patch('/reservations/{reservation}/{status}', [
             AdminReservationController::class,
@@ -119,17 +157,40 @@ Route::middleware([
             AdminDashboardController::class,
             'index'
         ])->name('dashboard');
-         // Calendar of Activities (admin only)
-        Route::get('/calendar', [
-            CalendarController::class,
-            'index'
-        ])->name('calendar');
-
         // Calendar of Activities (admin only)
         Route::get('/calendar', [
             CalendarController::class,
             'index'
         ])->name('calendar');
+
+        Route::post('/calendar/entries', [
+            CalendarEntryController::class,
+            'store'
+        ])->name('calendar.entries.store');
+
+        Route::patch('/calendar/entries/{entry}', [
+            CalendarEntryController::class,
+            'update'
+        ])->name('calendar.entries.update');
+
+        Route::delete('/calendar/entries/{entry}', [
+            CalendarEntryController::class,
+            'destroy'
+        ])->name('calendar.entries.destroy');
+
+        Route::patch('/calendar/reservations/{reservation}/remarks', [
+            CalendarEntryController::class,
+            'remarks'
+        ])->name('calendar.remarks');
+
+        // Venue management (details and Active / Maintenance / Deactivated)
+        Route::resource('venues', AdminVenueController::class)
+            ->except(['show', 'destroy']);
+
+        Route::patch('/venues/{venue}/status', [
+            AdminVenueController::class,
+            'status'
+        ])->name('venues.status');
 
     });
 

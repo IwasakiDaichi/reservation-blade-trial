@@ -1,5 +1,5 @@
 
-<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200 bg-white">
+<nav x-data="{ open: false }" class="print:hidden sticky top-0 z-50 border-b border-slate-200 bg-white">
 
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -28,8 +28,38 @@
                         :href="route('admin.reservations.index')"
                         :active="request()->routeIs('admin.reservations.*')">
                         Manage Reservation
+                        @if (($pendingCount = \App\Models\Reservation::where('status', 'pending')->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white" title="Pending requests">{{ $pendingCount }}</span>
+                        @endif
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('admin.calendar')"
+                        :active="request()->routeIs('admin.calendar*')">
+                        Calendar of Activities
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('notifications.index')"
+                        :active="request()->routeIs('notifications.index')">
+                        Notifications
+                        @if (($adminUnread = auth()->user()->unreadNotifications()->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-bold text-white">{{ $adminUnread }}</span>
+                        @endif
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('admin.venues.index')"
+                        :active="request()->routeIs('admin.venues.*')">
+                        Venues
                     </x-nav-link>
                 @else
+                    <x-nav-link
+                        :href="route('venues.index')"
+                        :active="request()->routeIs('venues.*')">
+                        Venues
+                    </x-nav-link>
+
                     <x-nav-link
                         :href="route('reservations.index')"
                         :active="request()->routeIs('reservations.index')">
@@ -40,6 +70,15 @@
                         :href="route('reservations.create')"
                         :active="request()->routeIs('reservations.create')">
                         Make a Reservation
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('notifications.index')"
+                        :active="request()->routeIs('notifications.index')">
+                        Notifications
+                        @if (($unreadCount = auth()->user()->unreadNotifications()->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-bold text-white">{{ $unreadCount }}</span>
+                        @endif
                     </x-nav-link>
                 @endif
             </div>
@@ -72,6 +111,9 @@
                             </p>
                             <p class="truncate text-xs text-slate-500">
                                 {{ Auth::user()->email }}
+                            </p>
+                            <p class="mt-1 text-xs font-semibold text-indigo-700">
+                                {{ Auth::user()->role === 'cpdo_admin' ? 'CPDO staff' : 'Student' }}
                             </p>
                         </div>
 
@@ -125,7 +167,31 @@
                     :active="request()->routeIs('admin.reservations.*')">
                     Admin Dashboard
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.calendar')"
+                    :active="request()->routeIs('admin.calendar*')">
+                    Calendar of Activities
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('notifications.index')"
+                    :active="request()->routeIs('notifications.index')">
+                    Notifications
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.venues.index')"
+                    :active="request()->routeIs('admin.venues.*')">
+                    Venues
+                </x-responsive-nav-link>
             @else
+                <x-responsive-nav-link
+                    :href="route('venues.index')"
+                    :active="request()->routeIs('venues.*')">
+                    Venues
+                </x-responsive-nav-link>
+
                 <x-responsive-nav-link
                     :href="route('reservations.index')"
                     :active="request()->routeIs('reservations.index')">
@@ -136,6 +202,12 @@
                     :href="route('reservations.create')"
                     :active="request()->routeIs('reservations.create')">
                     Make a Reservation
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('notifications.index')"
+                    :active="request()->routeIs('notifications.index')">
+                    Notifications
                 </x-responsive-nav-link>
             @endif
         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -15,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
     'email',
     'password',
     'role',
-    'department',
+    'department_id',
     'mobile_number',
     'mobile_verified_at',
     'mobile_verification_code_hash',
@@ -42,9 +43,14 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class);
     }
 
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     public function hasCompletedProfile(): bool
     {
-        return filled($this->department)
+        return filled($this->department_id)
             && filled($this->mobile_number)
             && $this->mobile_verified_at !== null;
     }
