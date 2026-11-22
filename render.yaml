@@ -2,6 +2,7 @@ services:
   - type: web
     name: reservation-blade-trial
     runtime: docker
+    branch: 11/16-deploy
     region: singapore
     plan: free
     dockerfilePath: ./Dockerfile
