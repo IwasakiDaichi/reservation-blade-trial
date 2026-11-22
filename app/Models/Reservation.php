@@ -18,6 +18,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'user_id',
+        'applicant_name',
         'department_id',
         'mobile_number',
         'purpose',
@@ -110,6 +111,17 @@ class Reservation extends Model
     public function signaturePath(SignatureRole $role): ?string
     {
         return $this->signatures->firstWhere('role', $role->value)?->path;
+    }
+
+    /** Walk-in / external applicants have no account. */
+    public function isWalkIn(): bool
+    {
+        return $this->user_id === null;
+    }
+
+    public function applicantName(): string
+    {
+        return $this->user?->name ?? $this->applicant_name ?? 'Unknown applicant';
     }
 
     /** "Dec 05, 2026" or "Dec 05, 2026 - Dec 07, 2026". */

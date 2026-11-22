@@ -20,7 +20,7 @@ class MaintenanceNotifier
             ->whereIn('status', ['pending', 'approved'])
             ->whereRaw('DATE(COALESCE(end_date, reserved_date)) >= ?', [today()->toDateString()])
             ->get()
-            ->filter(fn (Reservation $r) => $r->affectedByMaintenance());
+            ->filter(fn (Reservation $r) => $r->user_id !== null && $r->affectedByMaintenance());
 
         foreach ($reservations as $reservation) {
             $reason = $venue->status_note ? ' Reason: '.$venue->status_note.'.' : '';

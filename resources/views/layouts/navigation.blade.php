@@ -94,6 +94,9 @@
                             <p class="truncate text-xs text-slate-500">
                                 {{ Auth::user()->email }}
                             </p>
+                            <p class="mt-1 text-xs font-semibold text-indigo-700">
+                                {{ Auth::user()->role === 'cpdo_admin' ? 'CPDO staff' : 'Student' }}
+                            </p>
                         </div>
 
                         <x-dropdown-link :href="route('profile.edit')">

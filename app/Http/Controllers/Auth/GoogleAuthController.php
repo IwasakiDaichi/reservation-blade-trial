@@ -26,6 +26,27 @@ class GoogleAuthController extends Controller
             ->redirect();
     }
 
+    /** True when the email belongs to one of the configured UB domains (or any email if none are configured). */
+    private function isUbEmail(string $email): bool
+    {
+        $domains = config('reservation.ub_email_domains', []);
+
+        if ($domains === []) {
+            return true;
+        }
+
+        $host = strtolower(Str::after($email, '@'));
+
+        foreach ($domains as $domain) {
+            $domain = strtolower($domain);
+            if ($host === $domain || str_ends_with($host, '.'.$domain)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function callback()
     {
         $googleUser = Socialite::driver('google')->user();
@@ -36,14 +57,14 @@ class GoogleAuthController extends Controller
             abort(403, 'A verified Google email address is required.');
         }
 
+        if (! $this->isUbEmail($email)) {
+            return redirect('/')->with('login_error', 'Please log in with your University of Baguio account (for example name@s.ubaguio.edu). Other Google accounts cannot be used.');
+        }
+
         $user = User::where('email', $email)->first();
 
         if ($user && $user->role === 'cpdo_admin') {
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'email' => 'Please use the CPDO administrator login.',
-                ]);
+            return redirect('/')->with('login_error', 'This account is a CPDO staff account. Please use "CPDO sign in" with your staff email and password.');
         }
 
         if (!$user) {
@@ -83,6 +104,8 @@ class GoogleAuthController extends Controller
         Auth::login($user);
         request()->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        request()->session()->forget('url.intended');
+
+        return redirect()->route('dashboard');
     }
 }

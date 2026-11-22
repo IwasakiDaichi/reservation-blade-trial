@@ -80,9 +80,13 @@
                         @forelse ($reservations as $reservation)
                             <tr class="border-t align-top">
                                 <td class="p-3">
-                                    {{ $reservation->user->name ?? 'Deleted user' }}
+                                    {{ $reservation->applicantName() }}
                                     <div class="text-sm text-gray-500">
-                                        {{ $reservation->user->email ?? '' }}
+                                        @if ($reservation->isWalkIn())
+                                            Walk-in / external &middot; Local {{ $reservation->mobile_number }}
+                                        @else
+                                            {{ $reservation->user->email }}
+                                        @endif
                                     </div>
                                     <div class="text-xs text-gray-400">Reservation #{{ $reservation->id }}</div>
                                 </td>

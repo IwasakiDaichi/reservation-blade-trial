@@ -78,7 +78,7 @@ class ReservationFormPdf
         $rw = self::CW * 0.45; // right column width
 
         $this->drawSideBySideField($pdf,
-            'Name of Applicant', $reservation->user->name, $lw,
+            'Name of Applicant', $reservation->applicantName(), $lw,
             'Department', $reservation->department?->name ?? '', $rw
         );
         $this->drawSideBySideField($pdf,
@@ -402,7 +402,7 @@ foreach ($otherLines as $i => $line) {
             $sigH,
             'Signature over printed name of Applicant',
             $reservation->signaturePath(SignatureRole::Applicant),
-            $reservation->user?->name
+            $reservation->applicantName()
         );
         $this->drawSignatureCell($pdf, $rx, $y, $rw, $sigH, 'Signature over printed name of Security personnel', $reservation->signaturePath(SignatureRole::Security));
         $pdf->SetY($y + $sigH + 1.5);

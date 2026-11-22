@@ -9,8 +9,8 @@
 <body class="min-h-screen bg-slate-100 text-slate-800">
 <div class="min-h-screen bg-slate-100 lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
     <aside class="reservation-sidebar bg-blue-900 px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
-        <a href="{{ url('/dashboard') }}" class="flex items-center gap-3">
-            <span class="flex h-10 w-10 items-center justify-center rounded-md border border-slate-600 bg-slate-800 font-bold">C</span>
+        <a href="{{ url(($walkIn ?? false) ? '/' : '/dashboard') }}" class="flex items-center gap-3">
+            <span class="flex items-center justify-center rounded-md bg-white px-2 py-1.5"><x-application-logo class="h-8 w-auto" /></span>
             <span><span class="block text-xs font-semibold tracking-wide text-slate-300">CPDO</span><span class="block text-sm font-semibold">Venue Services</span></span>
         </a>
 
@@ -75,14 +75,18 @@
                     @php $shared = session('contact_info.'.$conflict['id']); @endphp
                     @if ($shared)
                         <div class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
-                            <p>You can reach <strong>{{ $shared['name'] }}</strong> at
-                                <a href="mailto:{{ $shared['email'] }}" class="font-semibold underline">{{ $shared['email'] }}</a>.
+                            <p>You can reach <strong>{{ $shared['name'] }}</strong>
+                                @if (! empty($shared['email']))
+                                    at <a href="mailto:{{ $shared['email'] }}" class="font-semibold underline">{{ $shared['email'] }}</a>.
+                                @else
+                                    at local no. <strong>{{ $shared['local'] }}</strong>.
+                                @endif
                             </p>
                             <p class="mt-1 text-xs">They were also told that you would like to talk, and your name and email were shared with them.</p>
                         </div>
                     @else
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <form method="POST" action="{{ route('reservations.contact') }}">
+                            <form method="POST" action="{{ ($walkIn ?? false) ? route('walkin.contact') : route('reservations.contact') }}">
                                 @csrf
                                 <input type="hidden" name="reservation_id" value="{{ $conflict['id'] }}">
                                 <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
@@ -132,12 +136,15 @@
                 'tables',
                 'chairs',
                 'otherRequrements1',
+                'applicant_name',
+                'local_number',
+                'department',
             ]) || session('conflicts')) {
                 $initialStep = 2;
             }
         @endphp
 
-        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
+        <form action="{{ ($walkIn ?? false) ? route('walkin.store') : url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
         @csrf
         <div class="wizard-step space-y-6" data-step="0">
             <section id="agreement-section" class="reservation-card">
@@ -250,7 +257,26 @@
         <section id="applicant-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
                     <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
-                        <div>
+                        @if ($walkIn ?? false)
+                            <div>
+                                <label for="applicant_name" class="mb-2 block text-sm font-semibold">Name of Applicant <b class="text-red-600">*</b></label>
+                                <input id="applicant_name" name="applicant_name" type="text" required maxlength="255" value="{{ old('applicant_name') }}" autocomplete="name"
+                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
+                                @error('applicant_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label for="local_number" class="mb-2 block text-sm font-semibold">Local No. <b class="text-red-600">*</b></label>
+                                <input id="local_number" name="local_number" type="text" required maxlength="50" value="{{ old('local_number') }}" autocomplete="tel"
+                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
+                                @error('local_number')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="department" class="mb-2 block text-sm font-semibold">Department / Organization <span class="font-normal text-slate-500">(optional)</span></label>
+                                <input id="department" name="department" type="text" maxlength="255" value="{{ old('department') }}"
+                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
+                                @error('department')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                        @endif
                         <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
                 </section>
@@ -448,8 +474,8 @@
                                 <!-- Printed Name -->
                                 <div class="mt-10 text-center">
                                     <div class="mx-auto flex min-h-12 max-w-md items-end justify-center border-b border-slate-700 pb-2">
-                                        <span class="font-semibold uppercase tracking-wide">
-                                            {{ Auth::user()->name }}
+                                        <span id="printed-applicant-name" class="font-semibold uppercase tracking-wide">
+                                            {{ Auth::user()?->name ?? old('applicant_name') }}
                                         </span>
                                     </div>
                                 
@@ -478,7 +504,7 @@
             </div>
         
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-                <a href="{{ url('/dashboard') }}"
+                <a href="{{ url(($walkIn ?? false) ? '/' : '/dashboard') }}"
                     class="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">
                     Cancel
                 </a>
@@ -658,6 +684,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================
     // 4. VENUE SELECTION
     // ==========================================
+
+    // Walk-in form: show the typed applicant name above the signature line.
+    const applicantNameInput = document.getElementById('applicant_name');
+    const printedApplicantName = document.getElementById('printed-applicant-name');
+    if (applicantNameInput && printedApplicantName) {
+        const syncPrintedName = () => { printedApplicantName.textContent = applicantNameInput.value.trim(); };
+        applicantNameInput.addEventListener('input', syncPrintedName);
+        syncPrintedName();
+    }
 
     const venueSelect = document.getElementById('venue');
     const otherVenueWrap = document.getElementById('other-venue-wrap');

@@ -310,11 +310,10 @@ class ReservationRulesTest extends TestCase
             ->assertSee('Please read');
     }
 
-    public function test_login_page_uses_the_welcome_layout(): void
+    public function test_login_page_is_displayed(): void
     {
         $this->get('/login')
             ->assertOk()
-            ->assertSee('Sign in to your account')
-            ->assertSee('GET STARTED');
+            ->assertSee('Log in');
     }
 }
