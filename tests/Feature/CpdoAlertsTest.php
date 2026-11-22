@@ -65,21 +65,6 @@ class CpdoAlertsTest extends TestCase
         $this->assertSame(0, $student->notifications()->count());
     }
 
-    public function test_walk_in_requests_also_alert_cpdo(): void
-    {
-        Storage::fake('local');
-        $admin = $this->admin();
-
-        $this->post(route('walkin.store'), [
-            'applicant_name' => 'Rosa Dela Cruz', 'local_number' => '1234',
-            'purpose' => 'Homecoming', 'venue_id' => Venue::factory()->create()->id, 'reservationType' => 'single',
-            'reservedDate' => $this->eventDate(), 'startTime' => '09:00', 'endTime' => '10:00',
-            'agreed' => '1', 'applicant_signature' => UploadedFile::fake()->image('s.png'),
-        ])->assertSessionHasNoErrors();
-
-        $this->assertStringContainsString('Rosa Dela Cruz', $admin->notifications()->first()->data['message']);
-    }
-
     public function test_student_cancelling_alerts_cpdo(): void
     {
         $admin = $this->admin();
@@ -143,5 +128,21 @@ class CpdoAlertsTest extends TestCase
             ->assertSee('Overlaps with')
             ->assertSee('#'.$a->id.' (pending)')
             ->assertSee('#'.$b->id.' (pending)');
+    }
+
+    public function test_cancel_option_only_shows_for_approved_reservations_since_pending_ones_have_reject(): void
+    {
+        $admin = $this->admin();
+        $student = $this->student();
+        $venue = Venue::factory()->create();
+        $this->booking($student, $venue, 'pending');
+
+        $this->actingAs($admin)->get(route('admin.reservations.index'))
+            ->assertOk()->assertSee('Reject')->assertDontSee('Cancel and notify student');
+
+        Reservation::query()->update(['status' => 'approved']);
+
+        $this->actingAs($admin)->get(route('admin.reservations.index'))
+            ->assertOk()->assertSee('Cancel and notify student');
     }
 }

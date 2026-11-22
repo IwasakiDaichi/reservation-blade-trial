@@ -1,23 +1,16 @@
 @php
+    $filterQuery = $selected === null ? [] : ['filtered' => 1, 'venues' => $selected];
     $fallback    = config('venues.default');
     $defaultDate = now()->isSameMonth($month) ? now()->toDateString() : $month->startOfMonth()->toDateString();
 @endphp
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar of Activities</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        table.calendar, table.calendar * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    </style>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-800">
-<div class="mx-auto max-w-6xl px-4 py-8">
+<x-app-layout>
+<style>
+    table.calendar, table.calendar * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+</style>
+<div>
 
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <a href="{{ route('admin.dashboard') }}" class="text-sm text-slate-600 hover:text-slate-900">&larr; Back to dashboard</a>
+        <p class="text-sm text-slate-600">Tick the venues you want to see.</p>
         <div class="flex gap-2">
             <button type="button" id="addBtn" class="rounded-lg bg-blue-800 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-900">+ Add activity</button>
             <button type="button" onclick="window.print()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">Print</button>
@@ -40,18 +33,39 @@
     </header>
 
     <div class="mb-4 flex items-center justify-between print:hidden">
-        <a href="{{ route('admin.calendar', ['month' => $prev]) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">&larr; {{ $month->subMonth()->format('M Y') }}</a>
-        <a href="{{ route('admin.calendar') }}" class="text-sm font-semibold text-blue-800 hover:underline">This month</a>
-        <a href="{{ route('admin.calendar', ['month' => $next]) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">{{ $month->addMonth()->format('M Y') }} &rarr;</a>
+        <a href="{{ route('admin.calendar', ['month' => $prev] + $filterQuery) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">&larr; {{ $month->subMonth()->format('M Y') }}</a>
+        <a href="{{ route('admin.calendar', $filterQuery) }}" class="text-sm font-semibold text-blue-800 hover:underline">This month</a>
+        <a href="{{ route('admin.calendar', ['month' => $next] + $filterQuery) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">{{ $month->addMonth()->format('M Y') }} &rarr;</a>
     </div>
 
-    {{-- Legend --}}
-    <div class="mb-4 flex flex-wrap items-center gap-2">
-        @foreach ($venues as $v)
-            <span class="rounded-md px-3 py-1 text-xs font-bold" style="background-color: {{ $v->calendar_color }}; color: {{ $v->calendar_text_color ?: '#111827' }}">{{ $v->calendarLabel() }}</span>
-        @endforeach
-        <span class="rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-600">PENDING / NOT YET CONFIRMED</span>
-    </div>
+    {{-- Venue filter (checkboxes double as the color legend) --}}
+    <form method="GET" action="{{ route('admin.calendar') }}" id="venueFilter" class="mb-4 rounded-xl border border-slate-200 bg-white p-4 print:hidden">
+        <input type="hidden" name="month" value="{{ $month->format('Y-m') }}">
+        <input type="hidden" name="filtered" value="1">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p class="text-sm font-bold text-slate-700">Filter by venue</p>
+            <div class="flex gap-3 text-xs font-semibold">
+                <button type="button" id="venuesAll" class="text-blue-800 hover:underline">Select all</button>
+                <button type="button" id="venuesNone" class="text-blue-800 hover:underline">Clear</button>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            @foreach ($groups as $g)
+                <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-bold shadow-sm"
+                       style="background-color: {{ $g['bg'] }}; color: {{ $g['text'] }}">
+                    <input type="checkbox" name="venues[]" value="{{ $g['value'] }}" class="venue-check h-4 w-4 rounded border-slate-400"
+                           @checked($selected === null || in_array($g['value'], $selected, true))>
+                    {{ $g['label'] }}
+                </label>
+            @endforeach
+            <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700">
+                <input type="checkbox" name="venues[]" value="other" class="venue-check h-4 w-4 rounded border-slate-400"
+                       @checked($selected === null || in_array('other', $selected, true))>
+                OTHER VENUES
+            </label>
+            <span class="rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-600">PENDING / NOT YET CONFIRMED</span>
+        </div>
+    </form>
 
     <div class="overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
         <table class="calendar w-full min-w-[900px] border-collapse text-sm">
@@ -185,6 +199,15 @@
 </dialog>
 
 <script>
+(function () {
+    const form = document.getElementById('venueFilter');
+    if (!form) return;
+    const boxes = form.querySelectorAll('.venue-check');
+    boxes.forEach(b => b.addEventListener('change', () => form.submit()));
+    document.getElementById('venuesAll').addEventListener('click', () => { boxes.forEach(b => b.checked = true); form.submit(); });
+    document.getElementById('venuesNone').addEventListener('click', () => { boxes.forEach(b => b.checked = false); form.submit(); });
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
     const ADD_URL      = @json(route('admin.calendar.entries.store'));
     const DEFAULT_DATE = @json($defaultDate);
@@ -252,5 +275,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-</body>
-</html>
+</x-app-layout>

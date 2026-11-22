@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\SignatureRole;
 use App\Enums\VenueStatus;
+use App\Notifications\ReservationNotice;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,6 @@ class Reservation extends Model
 
     protected $fillable = [
         'user_id',
-        'applicant_name',
         'department_id',
         'mobile_number',
         'purpose',
@@ -113,15 +113,19 @@ class Reservation extends Model
         return $this->signatures->firstWhere('role', $role->value)?->path;
     }
 
-    /** Walk-in / external applicants have no account. */
-    public function isWalkIn(): bool
+    /** Sends the student an in-app notice. A notification problem never blocks the action that triggered it. */
+    public function notifyApplicant(string $title, string $message, ?string $url = null): void
     {
-        return $this->user_id === null;
+        try {
+            $this->user?->notify(new ReservationNotice($title, $message, $url ?? route('reservations.index')));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function applicantName(): string
     {
-        return $this->user?->name ?? $this->applicant_name ?? 'Unknown applicant';
+        return $this->user?->name ?? 'Unknown applicant';
     }
 
     /** "Dec 05, 2026" or "Dec 05, 2026 - Dec 07, 2026". */

@@ -37,7 +37,7 @@ class ReservationNotice extends Notification
             ->line($this->message);
 
         if ($this->url) {
-            $mail->action('View details', $this->url);
+            $mail->action('Open', $this->url);
         }
 
         return $mail->line('CPDO Venue Reservation System');

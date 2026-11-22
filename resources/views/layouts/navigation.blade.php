@@ -1,5 +1,5 @@
 
-<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-slate-200 bg-white">
+<nav x-data="{ open: false }" class="print:hidden sticky top-0 z-50 border-b border-slate-200 bg-white">
 
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -31,6 +31,12 @@
                         @if (($pendingCount = \App\Models\Reservation::where('status', 'pending')->count()) > 0)
                             <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white" title="Pending requests">{{ $pendingCount }}</span>
                         @endif
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('admin.calendar')"
+                        :active="request()->routeIs('admin.calendar*')">
+                        Calendar of Activities
                     </x-nav-link>
 
                     <x-nav-link
@@ -160,6 +166,12 @@
                     :href="route('admin.reservations.index')"
                     :active="request()->routeIs('admin.reservations.*')">
                     Admin Dashboard
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.calendar')"
+                    :active="request()->routeIs('admin.calendar*')">
+                    Calendar of Activities
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link

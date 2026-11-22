@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Behind a hosting proxy, make generated links (including signed walk-in links) use https.
+        // Behind a hosting proxy, make generated links use https.
         if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }

@@ -9,7 +9,7 @@
 <body class="min-h-screen bg-slate-100 text-slate-800">
 <div class="min-h-screen bg-slate-100 lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
     <aside class="reservation-sidebar bg-blue-900 px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
-        <a href="{{ url(($walkIn ?? false) ? '/' : '/dashboard') }}" class="flex items-center gap-3">
+        <a href="{{ url('/dashboard') }}" class="flex items-center gap-3">
             <span class="flex items-center justify-center rounded-md bg-white px-2 py-1.5"><x-application-logo class="h-8 w-auto" /></span>
             <span><span class="block text-xs font-semibold tracking-wide text-slate-300">CPDO</span><span class="block text-sm font-semibold">Venue Services</span></span>
         </a>
@@ -86,7 +86,7 @@
                         </div>
                     @else
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <form method="POST" action="{{ ($walkIn ?? false) ? route('walkin.contact') : route('reservations.contact') }}">
+                            <form method="POST" action="{{ route('reservations.contact') }}">
                                 @csrf
                                 <input type="hidden" name="reservation_id" value="{{ $conflict['id'] }}">
                                 <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
@@ -136,15 +136,12 @@
                 'tables',
                 'chairs',
                 'otherRequrements1',
-                'applicant_name',
-                'local_number',
-                'department',
             ]) || session('conflicts')) {
                 $initialStep = 2;
             }
         @endphp
 
-        <form action="{{ ($walkIn ?? false) ? route('walkin.store') : url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
+        <form action="{{ url('/reservations') }}" method="POST" enctype="multipart/form-data" id="reservationForm" class="space-y-6" novalidate data-initial-step="{{ $initialStep }}">
         @csrf
         <div class="wizard-step space-y-6" data-step="0">
             <section id="agreement-section" class="reservation-card">
@@ -249,7 +246,7 @@
                 <p class="font-bold">Please read before you reserve</p>
                 <ul class="mt-2 list-disc space-y-1 pl-5">
                     <li>Reservations must be made at least <strong>two (2) weeks</strong> before the event. The earliest date you can choose is <strong>{{ \Carbon\Carbon::parse($earliestDate)->format('F j, Y') }}</strong>.</li>
-                    <li>Student activities cannot be held on <strong>Sundays or holidays</strong>.</li>
+                    <li>Student activities cannot be held on <strong>Sundays or holidays</strong>, and every activity must <strong>end by 9:00 PM</strong>.</li>
                     <li>You may cancel up to <strong>{{ config('reservation.cancellation_notice_days') }} days</strong> before the reserved date. CPDO may also cancel a reservation, for example when a venue goes under maintenance, and will tell you why.</li>
                     <li><strong>Double booking:</strong> if another reservation already has the same venue, date and time, we will tell you and ask if you would like to talk to that person. If you say yes, your name and email will be shared with them, and theirs with you, so you can discuss the booking.</li>
                 </ul>
@@ -257,26 +254,6 @@
         <section id="applicant-section" class="reservation-card">
                     <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
                     <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
-                        @if ($walkIn ?? false)
-                            <div>
-                                <label for="applicant_name" class="mb-2 block text-sm font-semibold">Name of Applicant <b class="text-red-600">*</b></label>
-                                <input id="applicant_name" name="applicant_name" type="text" required maxlength="255" value="{{ old('applicant_name') }}" autocomplete="name"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
-                                @error('applicant_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label for="local_number" class="mb-2 block text-sm font-semibold">Local No. <b class="text-red-600">*</b></label>
-                                <input id="local_number" name="local_number" type="text" required maxlength="50" value="{{ old('local_number') }}" autocomplete="tel"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
-                                @error('local_number')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label for="department" class="mb-2 block text-sm font-semibold">Department / Organization <span class="font-normal text-slate-500">(optional)</span></label>
-                                <input id="department" name="department" type="text" maxlength="255" value="{{ old('department') }}"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
-                                @error('department')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                        @endif
                         <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
                 </section>
@@ -310,8 +287,8 @@
                             </div>
                             @error('reservationType')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                         </fieldset>
-                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', $earliestDate) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Weekend rules can be adjusted after CPDO clarification.</p></div>
+                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"><p id="dateWarning" class="mt-1 hidden text-sm font-semibold text-red-600" role="alert"></p>@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', $earliestDate) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Sundays cannot be included.</p></div>
                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
                 <label for="startTime" class="mb-2 block text-sm font-semibold">
@@ -321,6 +298,7 @@
                     id="startTime"
                     name="startTime"
                     type="time"
+                    max="{{ config('reservation.closing_time') }}"
                     value="{{ old('startTime') }}"
                     required
                     class="w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -338,10 +316,12 @@
                     id="endTime"
                     name="endTime"
                     type="time"
+                    max="{{ config('reservation.closing_time') }}"
                     value="{{ old('endTime') }}"
                     required
                     class="w-full rounded-xl border border-slate-300 px-4 py-3"
                 >
+                <p id="timeWarning" class="mt-1 hidden text-sm font-semibold text-red-600" role="alert"></p>
                 @error('endTime')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -366,7 +346,7 @@
                                 <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
                             </div>
                             <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
-                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div></div>
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"><p id="chairsWarning" class="mt-2 hidden text-sm font-semibold text-red-600" role="alert"></p></div></div>
                         </div>
                         <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
@@ -475,7 +455,7 @@
                                 <div class="mt-10 text-center">
                                     <div class="mx-auto flex min-h-12 max-w-md items-end justify-center border-b border-slate-700 pb-2">
                                         <span id="printed-applicant-name" class="font-semibold uppercase tracking-wide">
-                                            {{ Auth::user()?->name ?? old('applicant_name') }}
+                                            {{ Auth::user()->name }}
                                         </span>
                                     </div>
                                 
@@ -504,7 +484,7 @@
             </div>
         
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-                <a href="{{ url(($walkIn ?? false) ? '/' : '/dashboard') }}"
+                <a href="{{ url('/dashboard') }}"
                     class="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">
                     Cancel
                 </a>
@@ -685,15 +665,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // 4. VENUE SELECTION
     // ==========================================
 
-    // Walk-in form: show the typed applicant name above the signature line.
-    const applicantNameInput = document.getElementById('applicant_name');
-    const printedApplicantName = document.getElementById('printed-applicant-name');
-    if (applicantNameInput && printedApplicantName) {
-        const syncPrintedName = () => { printedApplicantName.textContent = applicantNameInput.value.trim(); };
-        applicantNameInput.addEventListener('input', syncPrintedName);
-        syncPrintedName();
-    }
-
     const venueSelect = document.getElementById('venue');
     const otherVenueWrap = document.getElementById('other-venue-wrap');
     const otherVenueInput = document.getElementById('otherVenue');
@@ -727,9 +698,50 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Live check: chairs cannot exceed the chosen venue's capacity
+    const chairsInput = document.getElementById('chairs');
+    const chairsWarning = document.getElementById('chairsWarning');
+
+    function checkChairs() {
+        if (!chairsInput || !venueSelect) return true;
+
+        const chosen = venueSelect.options[venueSelect.selectedIndex];
+        const max = parseInt(chosen?.dataset.capacity || '', 10);
+        const name = chosen?.dataset.name || 'This venue';
+        const value = parseInt(chairsInput.value || '0', 10);
+
+        if (!isNaN(max) && max > 0) {
+            chairsInput.max = max;
+        } else {
+            chairsInput.removeAttribute('max');
+        }
+
+        if (!isNaN(max) && max > 0 && value > max) {
+            const message = name + ' holds up to ' + max.toLocaleString() + ' people. Please enter ' + max.toLocaleString() + ' chairs or fewer.';
+            chairsWarning.textContent = message;
+            chairsWarning.classList.remove('hidden');
+            chairsInput.classList.add('border-red-500');
+            chairsInput.setCustomValidity(message);
+            return false;
+        }
+
+        chairsWarning.classList.add('hidden');
+        chairsInput.classList.remove('border-red-500');
+        chairsInput.setCustomValidity('');
+        return true;
+    }
+
+    if (chairsInput) {
+        chairsInput.addEventListener('input', checkChairs);
+    }
+
     if (venueSelect) {
-        venueSelect.addEventListener('change', updateVenueFields);
+        venueSelect.addEventListener('change', function () {
+            updateVenueFields();
+            checkChairs();
+        });
         updateVenueFields();
+        checkChairs();
     }
 
     // ==========================================
@@ -780,6 +792,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateDateFields();
     }
+
+    // Live checks: no Sundays, and nothing may run past the closing time (9:00 PM)
+    const dateWarning = document.getElementById('dateWarning');
+    const timeWarning = document.getElementById('timeWarning');
+    const startTimeInput = document.getElementById('startTime');
+    const endTimeInput = document.getElementById('endTime');
+    const closingTime = @json(config('reservation.closing_time'));
+
+    function hasSunday(from, to) {
+        if (!from) return false;
+        const last = new Date((to || from) + 'T00:00:00');
+        for (let d = new Date(from + 'T00:00:00'); d <= last; d.setDate(d.getDate() + 1)) {
+            if (d.getDay() === 0) return true;
+        }
+        return false;
+    }
+
+    function checkDates() {
+        if (!reservedDateInput) return true;
+        const multiple = multipleDaysRadio && multipleDaysRadio.checked;
+        const from = multiple ? startDateInput.value : reservedDateInput.value;
+        const to = multiple ? endDateInput.value : reservedDateInput.value;
+        const bad = hasSunday(from, to);
+        const message = multiple
+            ? 'Student activities cannot be held on Sundays. Your dates include a Sunday - please choose other dates.'
+            : 'Student activities cannot be held on Sundays. Please choose another date.';
+
+        [reservedDateInput, startDateInput, endDateInput].forEach(function (input) {
+            input.setCustomValidity('');
+        });
+        (multiple ? startDateInput : reservedDateInput).setCustomValidity(bad ? message : '');
+
+        if (dateWarning) {
+            dateWarning.textContent = bad ? message : '';
+            dateWarning.classList.toggle('hidden', !bad);
+        }
+
+        return !bad;
+    }
+
+    function checkTimes() {
+        if (!endTimeInput) return true;
+        const late = (startTimeInput.value && startTimeInput.value > closingTime) || (endTimeInput.value && endTimeInput.value > closingTime);
+        const message = 'Activities must end by 9:00 PM. Please choose an earlier time.';
+
+        startTimeInput.setCustomValidity('');
+        endTimeInput.setCustomValidity(late ? message : '');
+
+        if (timeWarning) {
+            timeWarning.textContent = late ? message : '';
+            timeWarning.classList.toggle('hidden', !late);
+        }
+
+        return !late;
+    }
+
+    [reservedDateInput, startDateInput, endDateInput].forEach(function (input) {
+        if (input) input.addEventListener('input', checkDates);
+        if (input) input.addEventListener('change', checkDates);
+    });
+    [singleDayRadio, multipleDaysRadio].forEach(function (radio) {
+        if (radio) radio.addEventListener('change', checkDates);
+    });
+    [startTimeInput, endTimeInput].forEach(function (input) {
+        if (input) input.addEventListener('input', checkTimes);
+    });
+    checkDates();
+    checkTimes();
 
     if (startDateInput && endDateInput) {
         startDateInput.addEventListener('change', function () {

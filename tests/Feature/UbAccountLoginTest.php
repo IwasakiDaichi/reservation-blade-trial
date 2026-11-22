@@ -28,12 +28,11 @@ class UbAccountLoginTest extends TestCase
         Http::fake();
     }
 
-    public function test_home_page_offers_the_three_ways_in(): void
+    public function test_home_page_offers_both_ways_in(): void
     {
         $this->get('/')
             ->assertOk()
             ->assertSee('Log in with your student account')
-            ->assertSee('Walk-in / External organization')
             ->assertSee('CPDO sign in');
     }
 

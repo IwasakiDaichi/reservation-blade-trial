@@ -58,17 +58,12 @@
                                 Log in with your student account
                             </a>
 
-                            <a href="{{ route('walkin.create') }}" class="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/15 focus:outline-none focus:ring-4 focus:ring-white/20">
-                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19a4 4 0 0 0-8 0m4-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 8a4 4 0 0 0-3-3.87M16 5.13a3 3 0 0 1 0 5.74" /></svg>
-                                Walk-in / External organization
-                            </a>
-
                             <a href="{{ route('login') }}" class="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 px-5 py-3.5 text-sm font-semibold text-indigo-100 transition hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/20">
                                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3 4 6v5c0 5.2 3.4 8.6 8 10 4.6-1.4 8-4.8 8-10V6l-8-3Z" /></svg>
                                 CPDO sign in
                             </a>
                         </div>
-                        <p class="mt-5 text-center text-xs leading-5 text-slate-400">Students use their University of Baguio account. Walk-ins and external organizations can fill in the form without an account.</p>
+                        <p class="mt-5 text-center text-xs leading-5 text-slate-400">Students use their University of Baguio account.</p>
                     @endauth
 
                     <div class="my-6 border-t border-white/10"></div>

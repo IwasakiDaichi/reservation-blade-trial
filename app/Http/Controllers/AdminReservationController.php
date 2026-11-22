@@ -118,12 +118,11 @@ class AdminReservationController extends Controller
             'cancellation_reason' => $validated['cancellation_reason'],
         ]);
 
-        $reservation->user?->notify(new ReservationNotice(
+        $reservation->notifyApplicant(
             'Your reservation was cancelled by CPDO',
             'Reservation #'.$reservation->id.' ("'.$reservation->purpose.'") on '.$reservation->dateText()
                 .' was cancelled by CPDO. Reason: '.$validated['cancellation_reason'],
-            route('reservations.index'),
-        ));
+        );
 
         return redirect()
             ->route('admin.reservations.index')

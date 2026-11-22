@@ -4,6 +4,9 @@ return [
     // Reservations must be made at least this many days before the event (CPDO rule: two weeks).
     'lead_days' => 14,
 
+    // Activities must end by this time (CPDO rule: 9:00 PM).
+    'closing_time' => '21:00',
+
     // Students must cancel at least this many days before the reserved date (CPDO rule: three days).
     'cancellation_notice_days' => 3,
 

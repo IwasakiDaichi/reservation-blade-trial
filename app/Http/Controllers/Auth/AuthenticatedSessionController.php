@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        // This login is for CPDO staff only. Everyone else uses their UB account or the walk-in form.
+        // This login is for CPDO staff only. Students use their UB account.
         if ($request->user()->role !== 'cpdo_admin') {
             Auth::guard('web')->logout();
             $request->session()->invalidate();

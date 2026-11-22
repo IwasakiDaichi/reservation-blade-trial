@@ -86,11 +86,7 @@
                                 <td class="p-3">
                                     {{ $reservation->applicantName() }}
                                     <div class="text-sm text-gray-500">
-                                        @if ($reservation->isWalkIn())
-                                            Walk-in / external &middot; Local {{ $reservation->mobile_number }}
-                                        @else
-                                            {{ $reservation->user->email }}
-                                        @endif
+                                        {{ $reservation->user?->email }}
                                     </div>
                                     <div class="text-xs text-gray-400">Reservation #{{ $reservation->id }}</div>
                                 </td>
@@ -235,7 +231,7 @@
                                         <span class="text-gray-500">Reviewed</span>
                                     @endif
 
-                                    @if (in_array($reservation->status, ['pending', 'approved'], true))
+                                    @if ($reservation->status === 'approved')
                                         <details class="mt-2">
                                             <summary class="cursor-pointer text-sm font-semibold text-red-700 underline">Cancel reservation</summary>
                                             <form method="POST" action="{{ route('admin.reservations.cancel', $reservation) }}" class="mt-2 space-y-2">

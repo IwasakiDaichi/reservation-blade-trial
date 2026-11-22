@@ -6,7 +6,7 @@
     </a>
     <div class="mb-4">
         <h1 class="text-lg font-semibold text-gray-900">CPDO staff sign in</h1>
-        <p class="mt-1 text-sm text-gray-600">Students and other applicants do not sign in here. Go back to the home page and choose <strong>Log in with your student account</strong> or <strong>Walk-in / External organization</strong>.</p>
+        <p class="mt-1 text-sm text-gray-600">Students do not sign in here. Go back to the home page and choose <strong>Log in with your student account</strong>.</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}">

@@ -19,21 +19,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Walk-in / external organizations: no account needed
-Route::get('/walk-in', [ReservationController::class, 'createWalkIn'])->name('walkin.create');
-Route::post('/walk-in', [ReservationController::class, 'storeWalkIn'])
-    ->middleware('throttle:6,1')
-    ->name('walkin.store');
-Route::post('/walk-in/contact', [ReservationController::class, 'contact'])
-    ->middleware('throttle:12,1')
-    ->name('walkin.contact');
-Route::get('/walk-in/{reservation}/thanks', [ReservationController::class, 'walkInThanks'])
-    ->middleware('signed')
-    ->name('walkin.thanks');
-Route::get('/walk-in/{reservation}/print', [ReservationController::class, 'printWalkIn'])
-    ->middleware('signed')
-    ->name('walkin.print');
-
 // Dashboard
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', PreventBackHistory::class])

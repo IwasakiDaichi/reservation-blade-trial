@@ -16,11 +16,6 @@
                     class="inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 shadow-sm hover:bg-indigo-50">
                     Manage Venues
                 </a>
-
-                <a href="{{ route('admin.calendar') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
-                    Calendar of Activities
-                </a>
             </div>
         </div>
     </x-slot>

@@ -27,6 +27,33 @@ class CalendarController extends Controller
         $days = [];
         $venues = Venue::orderBy('name')->get();
 
+        // Venue filter (students' reservations at venues typed under "Other" have their own box). Venues that share a calendar color (e.g. Centennial Hall and Centennial AVR)
+        // get one checkbox together. No "filtered" flag = show everything.
+        $filterVenues = $venues->filter(fn ($v) => $v->calendarColors() !== null)->values();
+        $groups = $this->venueGroups($venues);
+        $selected = null;
+
+        if ($request->boolean('filtered')) {
+            $selected = collect((array) $request->query('venues', []))
+                ->map(fn ($v) => (string) $v)
+                ->values()
+                ->all();
+        }
+
+        $selectedIds = $selected === null ? [] : $groups
+            ->filter(fn ($g) => in_array($g['value'], $selected, true))
+            ->flatMap(fn ($g) => $g['ids'])
+            ->all();
+
+        // "other" = reservations and typed rows for venues that are not in the venue list.
+        $otherTicked = $selected !== null && in_array('other', $selected, true);
+
+        // With every box ticked nothing is hidden.
+        $filtering = $selected !== null
+            && (! $otherTicked || count(array_diff($venues->pluck('id')->all(), $selectedIds)) > 0);
+        $wanted = fn (?int $venueId): bool => ! $filtering
+            || ($venueId === null ? $otherTicked : in_array($venueId, $selectedIds, true));
+
         // ---- Reservations -------------------------------------------------
         $reservations = Reservation::query()
             ->with('venue', 'department')
@@ -36,6 +63,10 @@ class CalendarController extends Controller
             ->get();
 
         foreach ($reservations as $r) {
+            if (! $wanted($r->venue_id)) {
+                continue;
+            }
+
             $label = $r->venue ? $r->venue->calendarLabel() : ($r->other_venue ?: 'Other');
 
             $affected = $r->affectedByMaintenance();
@@ -80,6 +111,10 @@ class CalendarController extends Controller
             ->get();
 
         foreach ($entries as $e) {
+            if (! $wanted($this->matchVenue($venues, $e->venue)?->id)) {
+                continue;
+            }
+
             $startTime = $e->start_time ? substr((string) $e->start_time, 0, 5) : '';
             $endTime   = $e->end_time ? substr((string) $e->end_time, 0, 5) : '';
 
@@ -124,7 +159,9 @@ class CalendarController extends Controller
 
         return view('calendar.index', [
             'days'  => $days,
-            'venues' => $venues->filter(fn ($v) => $v->calendarColors() !== null)->values(),
+            'venues' => $filterVenues,
+            'groups' => $groups,
+            'selected' => $selected,
             'month' => $month,
             'prev'  => $month->subMonth()->format('Y-m'),
             'next'  => $month->addMonth()->format('Y-m'),
@@ -149,8 +186,35 @@ class CalendarController extends Controller
         }
     }
 
-    /** Colors for a manually typed venue, matched by name or short name (case-insensitive). */
-    private function colorFor($venues, ?string $typed): ?array
+    /** One filter checkbox per calendar color: [value, label, bg, text, ids]. */
+    private function venueGroups($venues)
+    {
+        return $venues
+            ->groupBy(fn ($v) => $v->calendar_color ? strtoupper($v->calendar_color) : 'venue-'.$v->id)
+            ->map(function ($group) {
+                $group = $group->sortByDesc('capacity_max')->values(); // biggest venue first
+                $first = $group->first();
+                $labels = $group->map->calendarLabel()->unique()->values();
+                $word = explode(' ', (string) $labels->first())[0];
+
+                // "CENTENNIAL HALL" + "CENTENNIAL AVR" -> "CENTENNIAL HALL / AVR"
+                $label = $labels->count() > 1 && $labels->every(fn ($l) => str_starts_with($l, $word.' '))
+                    ? $labels->first().' / '.$labels->skip(1)->map(fn ($l) => substr($l, strlen($word) + 1))->implode(' / ')
+                    : $labels->implode(' / ');
+
+                return [
+                    'value' => $group->pluck('id')->implode('-'),
+                    'label' => $label,
+                    'bg' => $first->calendar_color ?: '#FFFFFF',
+                    'text' => $first->calendar_text_color ?: '#111827',
+                    'ids' => $group->pluck('id')->all(),
+                ];
+            })
+            ->values();
+    }
+
+    /** The venue a manually typed name refers to, matched by name or short name (case-insensitive). */
+    private function matchVenue($venues, ?string $typed): ?Venue
     {
         if (blank($typed)) {
             return null;
@@ -158,10 +222,14 @@ class CalendarController extends Controller
 
         $typed = trim($typed);
 
-        $match = $venues->first(fn ($v) => strcasecmp($v->name, $typed) === 0
+        return $venues->first(fn ($v) => strcasecmp($v->name, $typed) === 0
             || strcasecmp((string) $v->short_name, $typed) === 0);
+    }
 
-        return $match?->calendarColors();
+    /** Colors for a manually typed venue. */
+    private function colorFor($venues, ?string $typed): ?array
+    {
+        return $this->matchVenue($venues, $typed)?->calendarColors();
     }
 
     private function timeText($start, $end, ?string $fallback): string
