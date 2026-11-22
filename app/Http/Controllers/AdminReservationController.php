@@ -153,6 +153,16 @@ class AdminReservationController extends Controller
                 ->with('error', $reservation->venue->name.' is currently '.strtolower($reservation->venue->status->label()).' and cannot be approved. Set it to Active first, or reject this request.');
         }
 
+        if ($status === 'approved') {
+            $taken = $reservation->overlappingOthers()->firstWhere('status', 'approved');
+
+            if ($taken) {
+                return redirect()
+                    ->route('admin.reservations.index')
+                    ->with('error', 'Cannot approve: this overlaps approved reservation #'.$taken->id.' ("'.$taken->purpose.'", '.$taken->dateText().'). Reject this request or cancel the other one first.');
+            }
+        }
+
         $reservation->update([
             'status' => $status,
             'rejection_reason' => $status === 'rejected'

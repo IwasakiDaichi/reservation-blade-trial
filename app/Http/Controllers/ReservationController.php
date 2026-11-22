@@ -15,6 +15,7 @@ use App\Enums\VenueStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use RuntimeException;
@@ -228,6 +229,13 @@ class ReservationController extends Controller
             return $reservation;
         });
 
+        $this->notifyCpdo(
+            'New reservation request',
+            $reservation->applicantName().($walkIn ? ' (walk-in / external)' : '').' requested '
+                .$reservation->load('venue')->venueName().' on '.$reservation->dateText().', '.$this->timeRange($reservation)
+                .' for "'.$reservation->purpose.'".'
+        );
+
         if ($walkIn) {
             return redirect(URL::temporarySignedRoute('walkin.thanks', now()->addHours(2), ['reservation' => $reservation->id]));
         }
@@ -235,6 +243,16 @@ class ReservationController extends Controller
         return redirect()
             ->route('reservations.index')
             ->with('success', 'Reservation submitted successfully!');
+    }
+
+    /** Tells every CPDO account about something that needs attention. */
+    private function notifyCpdo(string $title, string $message): void
+    {
+        $admins = User::where('role', 'cpdo_admin')->get();
+
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new ReservationNotice($title, $message, route('admin.reservations.index', ['status' => 'pending'])));
+        }
     }
 
     private function timeRange(Reservation $reservation): string
@@ -312,6 +330,11 @@ class ReservationController extends Controller
             'cancelled_by' => 'student',
             'cancellation_reason' => $request->input('reason'),
         ]);
+
+        $this->notifyCpdo(
+            'Reservation cancelled by the student',
+            $reservation->applicantName().' cancelled reservation #'.$reservation->id.' ('.$reservation->venueName().', '.$reservation->dateText().').'
+        );
 
         return redirect()->route('reservations.index')->with('success', 'Your reservation was cancelled.');
     }

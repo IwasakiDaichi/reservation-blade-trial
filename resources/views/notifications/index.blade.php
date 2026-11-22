@@ -16,7 +16,7 @@
                         </div>
                         <p class="mt-2 text-sm leading-6 text-slate-700">{{ $notification->data['message'] ?? '' }}</p>
                         @if (! empty($notification->data['url']))
-                            <a href="{{ $notification->data['url'] }}" class="mt-2 inline-block text-sm font-semibold text-blue-800 underline">View my reservations</a>
+                            <a href="{{ $notification->data['url'] }}" class="mt-2 inline-block text-sm font-semibold text-blue-800 underline">Open</a>
                         @endif
                     </article>
                 @empty

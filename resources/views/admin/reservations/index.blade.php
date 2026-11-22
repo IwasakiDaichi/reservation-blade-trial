@@ -78,6 +78,10 @@
 
                     <tbody>
                         @forelse ($reservations as $reservation)
+                            @php
+                                $overlaps = $reservation->overlappingOthers();
+                                $blockedByApproved = $overlaps->contains('status', 'approved');
+                            @endphp
                             <tr class="border-t align-top">
                                 <td class="p-3">
                                     {{ $reservation->applicantName() }}
@@ -128,6 +132,14 @@
                                     @if ($reservation->affectedByMaintenance())
                                         <div class="mt-1 text-xs font-semibold text-amber-700">Venue under maintenance</div>
                                     @endif
+                                    @if ($overlaps->isNotEmpty())
+                                        <div class="mt-1 max-w-[14rem] rounded border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                                            Overlaps with
+                                            @foreach ($overlaps as $other)
+                                                #{{ $other->id }} ({{ $other->status }}){{ $loop->last ? '' : ',' }}
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </td>
 
                                 <td class="p-3">
@@ -137,7 +149,8 @@
                                                 action="{{ route('admin.reservations.updateStatus', [$reservation, 'approved']) }}">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button class="rounded bg-green-600 px-3 py-1 text-white">
+                                                <button class="rounded bg-green-600 px-3 py-1 text-white {{ $blockedByApproved ? 'cursor-not-allowed opacity-50' : '' }}"
+                                                    @if ($blockedByApproved) disabled title="Overlaps an approved reservation" @endif>
                                                     Approve
                                                 </button>
                                             </form>

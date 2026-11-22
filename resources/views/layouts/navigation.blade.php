@@ -28,6 +28,18 @@
                         :href="route('admin.reservations.index')"
                         :active="request()->routeIs('admin.reservations.*')">
                         Manage Reservation
+                        @if (($pendingCount = \App\Models\Reservation::where('status', 'pending')->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white" title="Pending requests">{{ $pendingCount }}</span>
+                        @endif
+                    </x-nav-link>
+
+                    <x-nav-link
+                        :href="route('notifications.index')"
+                        :active="request()->routeIs('notifications.index')">
+                        Notifications
+                        @if (($adminUnread = auth()->user()->unreadNotifications()->count()) > 0)
+                            <span class="ms-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-bold text-white">{{ $adminUnread }}</span>
+                        @endif
                     </x-nav-link>
 
                     <x-nav-link
@@ -148,6 +160,12 @@
                     :href="route('admin.reservations.index')"
                     :active="request()->routeIs('admin.reservations.*')">
                     Admin Dashboard
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('notifications.index')"
+                    :active="request()->routeIs('notifications.index')">
+                    Notifications
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link

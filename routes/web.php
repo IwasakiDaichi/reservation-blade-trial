@@ -72,6 +72,12 @@ Route::middleware([
         'print'
     ])->name('reservations.print');
 
+    // Notices (students: messages from CPDO; CPDO: new requests and cancellations)
+    Route::get('/notifications', [
+        NotificationController::class,
+        'index'
+    ])->name('notifications.index');
+
 });
 
 // Student routes
@@ -106,12 +112,6 @@ Route::middleware([
         ReservationController::class,
         'contact'
     ])->name('reservations.contact');
-
-    // Messages from CPDO
-    Route::get('/notifications', [
-        NotificationController::class,
-        'index'
-    ])->name('notifications.index');
 
     // Browse venues and see their details
     Route::get('/venues', [

@@ -175,6 +175,30 @@ class Reservation extends Model
         return $this->affectedByMaintenance() || today()->lte($this->cancellationDeadline());
     }
 
+    /** Other pending or approved reservations that overlap this one (same venue, date and time). */
+    public function overlappingOthers(): Collection
+    {
+        if (! $this->venue_id || ! in_array($this->status, ['pending', 'approved'], true)) {
+            return collect();
+        }
+
+        $start = $this->start_date ?? $this->reserved_date;
+        $end = $this->end_date ?? $start;
+
+        if (! $this->start_time || ! $this->end_time) {
+            return collect();
+        }
+
+        return static::conflictsFor(
+            $this->venue_id,
+            $start->toDateString(),
+            $end->toDateString(),
+            (string) $this->start_time,
+            (string) $this->end_time,
+            $this->id,
+        );
+    }
+
     /**
      * Other pending or approved reservations at the same venue that overlap in date AND time.
      */
