@@ -1,0 +1,13 @@
+.git
+/laravel
+.env
+.env.*
+!.env.example
+.idea
+.vscode
+node_modules
+vendor
+storage/logs
+public/build
+public/hot
+public/storage
