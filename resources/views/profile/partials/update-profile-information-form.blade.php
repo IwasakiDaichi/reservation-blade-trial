@@ -62,7 +62,7 @@
                     id="department"
                     name="department"
                     x-model="dept"
-                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    class="mt-1 block w-full border-gray-300 focus:border-[#B21F24] focus:ring-[#B21F24] rounded-md shadow-sm"
                 >
                     <option value="">Select your department</option>
                     @foreach ($departments as $dept)

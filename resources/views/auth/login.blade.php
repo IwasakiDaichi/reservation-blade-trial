@@ -1,12 +1,12 @@
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
-        <a href="{{ url('/') }}" class="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900">
+        <a href="{{ url('/') }}" class="mb-4 inline-flex items-center gap-1 text-sm text-[#4A5568] hover:text-[#B21F24]">
         <span aria-hidden="true">&larr;</span> Back
     </a>
     <div class="mb-4">
-        <h1 class="text-lg font-semibold text-gray-900">CPDO staff sign in</h1>
-        <p class="mt-1 text-sm text-gray-600">Students do not sign in here. Go back to the home page and choose <strong>Log in with your student account</strong>.</p>
+        <h1 class="text-lg font-semibold text-[#1A202C]">CPDO staff sign in</h1>
+        <p class="mt-1 text-sm text-[#4A5568]">Students do not sign in here. Go back to the home page and choose <strong>Log in with your student account</strong>.</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}">
@@ -32,7 +32,7 @@
 
                 <button type="button"
                         @click="show = !show"
-                        class="absolute inset-y-0 end-0 px-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none"
+                        class="absolute inset-y-0 end-0 px-3 text-sm font-medium text-[#4A5568] hover:text-[#B21F24] focus:outline-none"
                         x-text="show ? 'Hide' : 'Show'"
                         x-bind:aria-label="show ? 'Hide password' : 'Show password'"></button>
             </div>
@@ -43,14 +43,14 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-[#D9A6AA] text-[#B21F24] shadow-sm focus:ring-[#B21F24]" name="remember">
+                <span class="ms-2 text-sm text-[#4A5568]">{{ __('Remember me') }}</span>
             </label>
         </div>
 
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
+                <a class="rounded-md text-sm text-[#4A5568] underline hover:text-[#B21F24] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif

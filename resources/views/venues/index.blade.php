@@ -14,7 +14,7 @@
                     class="w-full rounded-md border-gray-300 text-sm font-normal shadow-sm sm:w-64"
                     aria-label="Search venues">
                 <button type="submit"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                    class="rounded-md bg-[#B21F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A151B]">
                     Search
                 </button>
                 @if ($search !== '')
@@ -81,13 +81,13 @@
 
                         <div class="mt-auto flex items-center gap-3 pt-5">
                             <a href="{{ route('venues.show', $venue) }}"
-                                class="rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
+                                class="rounded-md border border-[#F1C9CC] bg-[#FFF1F2] px-4 py-2 text-sm font-semibold text-[#B21F24] hover:bg-[#FCEDEE]">
                                 View details
                             </a>
 
                             @if ($venue->isReservable())
                                 <a href="{{ route('reservations.create', ['venue' => $venue->id]) }}"
-                                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                                    class="rounded-md bg-[#B21F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A151B]">
                                     Reserve
                                 </a>
                             @else

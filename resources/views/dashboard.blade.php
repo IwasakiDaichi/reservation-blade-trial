@@ -14,12 +14,12 @@
 
         <div class="mt-4 flex flex-wrap gap-4">
             <a href="{{ route('reservations.index') }}"
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+               class="text-sm font-medium text-[#B21F24] hover:text-[#8A151B]">
                 My Reservations
             </a>
 
             <a href="{{ route('reservations.create') }}"
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+               class="text-sm font-medium text-[#B21F24] hover:text-[#8A151B]">
                 Make a Reservation
             </a>
         </div>
@@ -66,7 +66,7 @@
                             x-model="dept"
                             required
 
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
                             <option value="" disabled>Select your department</option>
                             @foreach ($departments as $dept)
@@ -91,7 +91,7 @@
                                 maxlength="255"
                                 x-bind:required="dept === 'Others'"
                                 placeholder="Type your department"
-                                class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                             >
 
                             @error('department_other')
@@ -113,7 +113,7 @@
                             required
                             maxlength="30"
                             placeholder="09XXXXXXXXX"
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
 
                         @error('mobile_number')
@@ -123,7 +123,7 @@
 
                     <button
                         type="submit"
-                        class="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                        class="mt-6 w-full rounded-lg bg-[#B21F24] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#8A151B]"
                     >
                         Save Profile
                     </button>

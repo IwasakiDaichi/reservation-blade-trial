@@ -3,31 +3,42 @@
         Student Dashboard
     </x-slot>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-slate-800">
-            Welcome, {{ auth()->user()->name }}!
-        </h2>
+    <div class="border-t-4 border-[#B21F24] bg-[#FFF9F9]">
+        <section class="border border-[#F1C9CC] bg-white">
+            <div class="px-5 py-6 sm:px-6">
+                <h2 class="text-2xl font-bold tracking-tight text-[#1A202C]">
+                    {{ auth()->user()->name }}
+                </h2>
+                <p class="mt-3 max-w-3xl text-sm leading-6 text-[#4A5568]">
+                    Use the navigation above to make a reservation, review your requests, or browse campus venues.
+                </p>
 
-        <p class="mt-2 text-sm text-slate-600">
-            Welcome to the CPDO Venue Reservation System.
-        </p>
+                <div class="mt-7 grid gap-6 border-t border-[#F1C9CC] pt-6 lg:grid-cols-[11rem_1fr]">
+                    <div>
+                        <h3 class="text-base font-semibold text-[#B21F24]">Before you submit</h3>
+                        <p class="mt-1 text-sm leading-6 text-[#4A5568]">Prepare the details CPDO needs to review your request.</p>
+                    </div>
 
-        <div class="mt-4 flex flex-wrap gap-4">
-            <a href="{{ route('venues.index') }}"
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                Browse Venues
-            </a>
-
-            <a href="{{ route('reservations.index') }}"
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                My Reservations
-            </a>
-
-            <a href="{{ route('reservations.create') }}"
-               class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                Make a Reservation
-            </a>
-        </div>
+                    <ol class="grid gap-4 sm:grid-cols-3">
+                        <li class="border-t-2 border-[#B21F24] pt-3">
+                            <p class="text-xs font-bold uppercase tracking-[0.12em] text-[#B21F24]">01</p>
+                            <p class="mt-2 text-sm font-semibold text-[#1A202C]">Select a venue</p>
+                            <p class="mt-1 text-sm leading-5 text-[#4A5568]">Choose a space suited to your event.</p>
+                        </li>
+                        <li class="border-t-2 border-[#F1C9CC] pt-3">
+                            <p class="text-xs font-bold uppercase tracking-[0.12em] text-[#B21F24]">02</p>
+                            <p class="mt-2 text-sm font-semibold text-[#1A202C]">Add request details</p>
+                            <p class="mt-1 text-sm leading-5 text-[#4A5568]">Include your schedule, purpose, and setup.</p>
+                        </li>
+                        <li class="border-t-2 border-[#F1C9CC] pt-3">
+                            <p class="text-xs font-bold uppercase tracking-[0.12em] text-[#B21F24]">03</p>
+                            <p class="mt-2 text-sm font-semibold text-[#1A202C]">Track CPDO review</p>
+                            <p class="mt-1 text-sm leading-5 text-[#4A5568]">Check My Reservations for updates.</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
     </div>
 
     {{-- Student Profile Completion Popup --}}
@@ -37,22 +48,24 @@
     )
         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
 
-            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="w-full max-w-md rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-xl">
 
-                <h2 class="text-xl font-bold text-slate-800">
-                    Complete Your Student Profile
-                </h2>
+                <div class="border-b border-[#E2E8F0] pb-4">
+                    <h2 class="text-xl font-semibold text-[#1A202C]">
+                        Complete your student profile
+                    </h2>
 
-                <p class="mt-2 text-sm text-slate-600">
-                    Please provide your department and mobile number before making a reservation.
-                </p>
+                    <p class="mt-2 text-sm leading-6 text-[#718096]">
+                        Please provide your department and mobile number before making a reservation.
+                    </p>
+                </div>
 
                 <form action="{{ route('profile.complete') }}" method="POST" class="mt-6">
                     @csrf
                     @method('PATCH')
 
                     <div>
-                        <label for="department" class="block text-sm font-medium text-slate-700">
+                        <label for="department" class="block text-sm font-semibold text-[#1A202C]">
                             Department / Local No.
                         </label>
 
@@ -63,16 +76,16 @@
                             value="{{ old('department', auth()->user()->department?->name) }}"
                             required
                             maxlength="255"
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1.5 block w-full rounded-md border-[#CBD5E1] text-[#1A202C] shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
 
                         @error('department')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-[#B91C1C]">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="mt-4">
-                        <label for="mobile_number" class="block text-sm font-medium text-slate-700">
+                        <label for="mobile_number" class="block text-sm font-semibold text-[#1A202C]">
                             Mobile Number
                         </label>
 
@@ -84,23 +97,24 @@
                             required
                             maxlength="30"
                             placeholder="09XXXXXXXXX"
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1.5 block w-full rounded-md border-[#CBD5E1] text-[#1A202C] shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
 
                         @error('mobile_number')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-[#B91C1C]">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <button
                         type="submit"
-                        class="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                        class="mt-6 w-full rounded-md bg-[#B21F24] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#8A151B] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2"
                     >
-                        Save Profile
+                        Save profile
                     </button>
                 </form>
 
             </div>
         </div>
     @endif
+
 </x-app-layout>

@@ -3,46 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPDO Venue Reservation</title>
+    <title>University of Baguio | CPDO Venue Reservation</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/ub-seal.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-800">
-<div class="min-h-screen bg-slate-100 lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
-    <aside class="reservation-sidebar bg-blue-900 px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
-        <a href="{{ url('/dashboard') }}" class="flex items-center gap-3">
-            <span class="flex items-center justify-center rounded-md bg-white px-2 py-1.5"><x-application-logo class="h-8 w-auto" /></span>
-            <span><span class="block text-xs font-semibold tracking-wide text-slate-300">CPDO</span><span class="block text-sm font-semibold">Venue Services</span></span>
+<body class="min-h-screen bg-[#FFF8F8] text-[#1A202C]">
+<div class="min-h-screen bg-[#FFF8F8] lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
+    <aside class="reservation-sidebar bg-[#8A151B] px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
+        <a href="{{ url('/dashboard') }}" class="block rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#8A151B]">
+            <x-application-logo class="h-auto w-36" />
+            <span class="mt-5 block border-t border-[#B94F54] pt-4">
+                <span class="block text-xs font-semibold tracking-wide text-[#FFE5E6]">CPDO</span>
+                <span class="mt-1 block text-sm font-semibold text-white">Venue Reservation Services</span>
+            </span>
         </a>
 
         <nav class="mt-10 hidden lg:block" aria-label="Reservation progress">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Reservation progress</p>
-            <ol class="mt-5 border-l border-slate-700">
+            <p class="text-xs font-semibold uppercase tracking-wide text-[#FFE5E6]">Reservation progress</p>
+            <ol class="mt-5 border-l border-[#B94F54]">
                 <li class="reservation-progress-item reservation-progress-current" data-progress-step="0" aria-current="step">
                     <span class="reservation-progress-marker">1</span>
                     <span class="block text-sm font-medium">Terms and conditions</span>
-                    <span class="mt-1 block text-xs text-slate-400">Review venue use requirements</span>
+                    <span class="mt-1 block text-xs text-[#FFE5E6]">Review venue use requirements</span>
                 </li>
                 <li class="reservation-progress-item" data-progress-step="1">
                     <span class="reservation-progress-marker">2</span>
                     <span class="block text-sm font-medium">Policies and guidelines</span>
-                    <span class="mt-1 block text-xs text-slate-400">Review venue use policies</span>
+                    <span class="mt-1 block text-xs text-[#FFE5E6]">Review venue use policies</span>
                 </li>
                 <li class="reservation-progress-item" data-progress-step="2">
                     <span class="reservation-progress-marker">3</span>
                     <span class="block text-sm font-medium">Reservation details</span>
-                    <span class="mt-1 block text-xs text-slate-400">Venue, schedule, and setup</span>
+                    <span class="mt-1 block text-xs text-[#FFE5E6]">Venue, schedule, and setup</span>
                 </li>
                 <li class="reservation-progress-item" data-progress-step="3">
                     <span class="reservation-progress-marker">4</span>
                     <span class="block text-sm font-medium">Confirmation and signature</span>
-                    <span class="mt-1 block text-xs text-slate-400">Confirm details and submit</span>
+                    <span class="mt-1 block text-xs text-[#FFE5E6]">Confirm details and submit</span>
                 </li>
             </ol>
         </nav>
 
-        <div class="mt-10 hidden border-t border-slate-700 pt-5 lg:block">
+        <div class="mt-10 hidden border-t border-[#B94F54] pt-5 lg:block">
             <p class="text-sm font-semibold">Before you submit</p>
-            <p class="mt-2 text-sm leading-6 text-slate-300">Read the terms and policies, then review your venue, schedule, and setup details before submission.</p>
+            <p class="mt-2 text-sm leading-6 text-[#FFE5E6]">Read the terms and policies, then review your venue, schedule, and setup details before submission.</p>
         </div>
     </aside>
 
@@ -89,7 +93,7 @@
                             <form method="POST" action="{{ route('reservations.contact') }}">
                                 @csrf
                                 <input type="hidden" name="reservation_id" value="{{ $conflict['id'] }}">
-                                <button type="submit" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+                                <button type="submit" class="rounded-md bg-[#B21F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A151B]">
                                     Yes, give me their email
                                 </button>
                             </form>
@@ -105,10 +109,10 @@
         </div>
         @endif
 
-        <header class="mb-8 border-b border-slate-200 pb-6">
-            <p class="text-sm font-medium text-blue-800">Step 1 of 4</p>
-            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Request a venue reservation</h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Read the terms and policies first, then enter your venue, schedule, and setup details. You will confirm and sign before submission.</p>
+        <header class="mb-8 border-b border-[#F1C9CC] pb-6">
+            <p class="text-sm font-medium text-[#B21F24]">Step 1 of 4</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-[#1A202C]">Request a venue reservation</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#4A5568]">Read the terms and policies first, then enter your venue, schedule, and setup details. You will confirm and sign before submission.</p>
         </header>
 
         @php
@@ -146,7 +150,7 @@
         <div class="wizard-step space-y-6" data-step="0">
             <section id="agreement-section" class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">01</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-md bg-[#FFF1F2] font-black text-[#B21F24]">01</span>
                     <div>
                         <h2 class="text-xl font-bold">Terms and Conditions</h2>
                         <p class="mt-1 text-sm text-slate-500">Please read the applicable conditions carefully.</p>
@@ -190,7 +194,7 @@
         <div class="wizard-step space-y-6 hidden" data-step="1">
             <section class="reservation-card">
                 <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">02</span>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1F2] font-black text-[#B21F24]">02</span>
                     <div>
                         <h2 class="text-xl font-bold">Policies and Guidelines</h2>
                         <p class="mt-1 text-sm text-slate-500">The following policies must be strictly followed.</p>
@@ -252,17 +256,17 @@
                 </ul>
             </div>
         <section id="applicant-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">03</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1F2] font-black text-[#B21F24]">03</span><div><h2 class="text-xl font-bold">Reservation Details</h2><p class="mt-1 text-sm text-slate-500">Provide the purpose and details of your venue reservation.</p></div></div>
                     <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
-                        <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div class="sm:col-span-2"><label for="purpose" class="mb-2 block text-sm font-semibold">Reservation Purpose <b class="text-red-600">*</b></label><textarea id="purpose" name="purpose" rows="3" required class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">{{ old('purpose') }}</textarea>@error('purpose')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
                 </section>
             
                 <section id="venue-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">04</span><div><h2 class="text-xl font-bold">Venue Selection</h2><p class="mt-1 text-sm text-slate-500">Choose the venue for your event.</p></div></div>
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1F2] font-black text-[#B21F24]">04</span><div><h2 class="text-xl font-bold">Venue Selection</h2><p class="mt-1 text-sm text-slate-500">Choose the venue for your event.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <label for="venue" class="mb-2 block text-sm font-semibold">Venue / Capacity <b class="text-red-600">*</b></label>
-                        <select id="venue" name="venue_id" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">
+                        <select id="venue" name="venue_id" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">
                             <option value="">Choose a venue</option>
                             @foreach ($venues as $venue)
                                 <option value="{{ $venue->id }}" data-name="{{ $venue->name }}" data-capacity="{{ $venue->capacity_max }}"
@@ -273,22 +277,22 @@
                             <option value="other" @selected((string) $selectedVenue === 'other')>Other venue</option>
                         </select>
                         @error('venue_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                        <div id="other-venue-wrap" class="mt-5 {{ (string) $selectedVenue === 'other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div id="other-venue-wrap" class="mt-5 {{ (string) $selectedVenue === 'other' ? '' : 'hidden' }}"><label for="otherVenue" class="mb-2 block text-sm font-semibold">Please specify the venue <b class="text-red-600">*</b></label><input id="otherVenue" name="otherVenue" value="{{ old('otherVenue') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">@error('otherVenue')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
                 </section>
             
                 <section id="schedule-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">05</span><div><h2 class="text-xl font-bold">Reservation Schedule</h2><p class="mt-1 text-sm text-slate-500">Choose one day or a continuous date range.</p></div></div>
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1F2] font-black text-[#B21F24]">05</span><div><h2 class="text-xl font-bold">Reservation Schedule</h2><p class="mt-1 text-sm text-slate-500">Choose one day or a continuous date range.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <fieldset><legend class="mb-3 text-sm font-semibold">Reservation Duration <b class="text-red-600">*</b></legend>
                             <div class="grid gap-4 sm:grid-cols-2">
-                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="singleDay" type="radio" name="reservationType" value="single" @checked(old('reservationType', 'single') === 'single') class="mt-1 h-4 w-4"><span><b class="block">One Day</b><span class="mt-1 block text-sm text-slate-500">Reserve for a single date.</span></span></label>
-                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50"><input id="multipleDays" type="radio" name="reservationType" value="multiple" @checked(old('reservationType') === 'multiple') class="mt-1 h-4 w-4"><span><b class="block">Multiple Days</b><span class="mt-1 block text-sm text-slate-500">Reserve across a date range.</span></span></label>
+                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-[#D88B90] has-[:checked]:border-[#B21F24] has-[:checked]:bg-[#FFF8F8]"><input id="singleDay" type="radio" name="reservationType" value="single" @checked(old('reservationType', 'single') === 'single') class="mt-1 h-4 w-4"><span><b class="block">One Day</b><span class="mt-1 block text-sm text-slate-500">Reserve for a single date.</span></span></label>
+                                <label class="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 hover:border-[#D88B90] has-[:checked]:border-[#B21F24] has-[:checked]:bg-[#FFF8F8]"><input id="multipleDays" type="radio" name="reservationType" value="multiple" @checked(old('reservationType') === 'multiple') class="mt-1 h-4 w-4"><span><b class="block">Multiple Days</b><span class="mt-1 block text-sm text-slate-500">Reserve across a date range.</span></span></label>
                             </div>
                             @error('reservationType')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                         </fieldset>
-                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"><p id="dateWarning" class="mt-1 hidden text-sm font-semibold text-red-600" role="alert"></p>@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', $earliestDate) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-800">The period includes every date between the start and end dates. Sundays cannot be included.</p></div>
+                        <div id="singleDateContainer" class="mt-5"><label for="reservedDate" class="mb-2 block text-sm font-semibold">Reservation Date <b class="text-red-600">*</b></label><input id="reservedDate" name="reservedDate" type="date" value="{{ old('reservedDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"><p id="dateWarning" class="mt-1 hidden text-sm font-semibold text-red-600" role="alert"></p>@error('reservedDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div id="dateRangeContainer" class="mt-5 hidden"><div class="grid gap-5 sm:grid-cols-2"><div><label for="startDate" class="mb-2 block text-sm font-semibold">Start Date <b class="text-red-600">*</b></label><input id="startDate" name="startDate" type="date" value="{{ old('startDate') }}" min="{{ $earliestDate }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">@error('startDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div><div><label for="endDate" class="mb-2 block text-sm font-semibold">End Date <b class="text-red-600">*</b></label><input id="endDate" name="endDate" type="date" value="{{ old('endDate') }}" min="{{ old('startDate', $earliestDate) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">@error('endDate')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div></div><p class="mt-3 rounded-xl bg-[#FFF1F2] p-3 text-sm leading-6 text-[#B21F24]">The period includes every date between the start and end dates. Sundays cannot be included.</p></div>
                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
                 <label for="startTime" class="mb-2 block text-sm font-semibold">
@@ -331,24 +335,24 @@
                 </section>
             
                 <section id="requirements-section" class="reservation-card">
-                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-800">06</span><div><h2 class="text-xl font-bold">Equipment and Physical Setup</h2><p class="mt-1 text-sm text-slate-500">Add the equipment and setup items required.</p></div></div>
+                    <div class="flex gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1F2] font-black text-[#B21F24]">06</span><div><h2 class="text-xl font-bold">Equipment and Physical Setup</h2><p class="mt-1 text-sm text-slate-500">Add the equipment and setup items required.</p></div></div>
                     <div class="p-5 sm:p-7">
                         <h3 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">Equipment</h3>
                         <div class="grid gap-5 sm:grid-cols-3">
-                            <div><label for="soundSystem" class="mb-2 block text-sm font-semibold">Sound System</label><input id="soundSystem" name="soundSystem" value="{{ old('soundSystem') }}" placeholder="e.g. 1 set" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
-                            <div><label for="microphone" class="mb-2 block text-sm font-semibold">Microphone</label><input id="microphone" name="microphone" value="{{ old('microphone') }}" placeholder="e.g. 2 units" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
-                            <div><label for="videoWall" class="mb-2 block text-sm font-semibold">LED Video Wall</label><input id="videoWall" name="videoWall" value="{{ old('videoWall') }}" placeholder="Specify requirement" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div>
+                            <div><label for="soundSystem" class="mb-2 block text-sm font-semibold">Sound System</label><input id="soundSystem" name="soundSystem" value="{{ old('soundSystem') }}" placeholder="e.g. 1 set" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"></div>
+                            <div><label for="microphone" class="mb-2 block text-sm font-semibold">Microphone</label><input id="microphone" name="microphone" value="{{ old('microphone') }}" placeholder="e.g. 2 units" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"></div>
+                            <div><label for="videoWall" class="mb-2 block text-sm font-semibold">LED Video Wall</label><input id="videoWall" name="videoWall" value="{{ old('videoWall') }}" placeholder="Specify requirement" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"></div>
                         </div>
                         <div class="mt-8 border-t border-slate-100 pt-6"><h3 class="font-bold">Physical Setup</h3><p class="mt-1 text-sm text-slate-500">Select items and enter quantities as needed.</p>
                             <div class="mt-4 flex flex-wrap gap-3">
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="flags" name="flags" type="checkbox" value="Yes" @checked(old('flags') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Flags (UB and Philippines)</span></label>
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="podium" name="podium" type="checkbox" value="Yes" @checked(old('podium') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Podium</span></label>
-                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-blue-700"><span class="text-sm font-medium">Platform</span></label>
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="flags" name="flags" type="checkbox" value="Yes" @checked(old('flags') === 'Yes') class="h-4 w-4 rounded text-[#B21F24]"><span class="text-sm font-medium">Flags (UB and Philippines)</span></label>
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="podium" name="podium" type="checkbox" value="Yes" @checked(old('podium') === 'Yes') class="h-4 w-4 rounded text-[#B21F24]"><span class="text-sm font-medium">Podium</span></label>
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-3"><input id="platform" name="platform" type="checkbox" value="Yes" @checked(old('platform') === 'Yes') class="h-4 w-4 rounded text-[#B21F24]"><span class="text-sm font-medium">Platform</span></label>
                             </div>
-                            <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-blue-700"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
-                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100"><p id="chairsWarning" class="mt-2 hidden text-sm font-semibold text-red-600" role="alert"></p></div></div>
+                            <div id="removalOfRingsContainer" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4"><label for="removalOfRings" class="flex cursor-pointer items-start gap-3"><input id="removalOfRings" name="removalOfRings" type="checkbox" value="Yes" @checked(old('removalOfRings') === 'Yes') class="mt-1 h-4 w-4 rounded text-[#B21F24]"><span><b class="block text-sm">Removal of Rings / Goal (Gym)</b><span class="mt-1 block text-sm text-slate-600">Only available when a gym venue is selected.</span></span></label></div>
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2"><div><label for="tables" class="mb-2 block text-sm font-semibold">Number of Tables</label><input id="tables" name="tables" type="number" min="0" value="{{ old('tables') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"></div><div><label for="chairs" class="mb-2 block text-sm font-semibold">Number of Chairs</label><input id="chairs" name="chairs" type="number" min="0" value="{{ old('chairs') }}" placeholder="0" class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]"><p id="chairsWarning" class="mt-2 hidden text-sm font-semibold text-red-600" role="alert"></p></div></div>
                         </div>
-                        <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                        <div class="mt-6"><label for="otherRequrements1" class="mb-2 block text-sm font-semibold">Other Requirements</label><textarea id="otherRequrements1" name="otherRequrements1" rows="4" placeholder="Additional equipment, setup, or special requirements..." class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-[#B21F24] focus:outline-none focus:ring-4 focus:ring-[#FADBDD]">{{ old('otherRequrements1') }}</textarea><input type="hidden" name="otherRequrements2" value="">@error('otherRequrements1')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
                     </div>
                 </section>
         </div>
@@ -375,7 +379,7 @@
                                     value="1"
                                     required
                                     @checked(old('agreed'))
-                                    class="mt-1 h-4 w-4 rounded text-blue-700">
+                                    class="mt-1 h-4 w-4 rounded text-[#B21F24]">
                 
                                 <span class="text-sm leading-6">
                                    I have read, understood, and agree to follow all the Terms and Conditions and Policies stated above.
@@ -485,26 +489,26 @@
         
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
                 <a href="{{ url('/dashboard') }}"
-                    class="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                    class="inline-flex justify-center rounded-md border border-[#D9A6AA] bg-white px-6 py-3 text-sm font-bold text-[#4A5568] hover:bg-[#FFF1F2] hover:text-[#B21F24]">
                     Cancel
                 </a>
             
                 <div class="flex flex-col-reverse gap-3 sm:flex-row">
                     <button type="button"
                         id="prevStep"
-                        class="hidden rounded-xl border border-slate-300 px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                        class="hidden rounded-md border border-[#D9A6AA] px-6 py-3 text-sm font-bold text-[#4A5568] hover:bg-[#FFF1F2] hover:text-[#B21F24]">
                         Back
                     </button>
                 
                     <button type="button"
                         id="nextStep"
-                        class="rounded-xl bg-blue-800 px-7 py-3 text-sm font-bold text-white hover:bg-blue-900">
+                        class="rounded-md bg-[#B21F24] px-7 py-3 text-sm font-bold text-white hover:bg-[#8A151B]">
                         Next →
                     </button>
                 
                     <button type="submit"
                         id="submitReservation"
-                        class="hidden rounded-xl bg-blue-800 px-7 py-3 text-sm font-bold text-white hover:bg-blue-900">
+                        class="hidden rounded-md bg-[#B21F24] px-7 py-3 text-sm font-bold text-white hover:bg-[#8A151B]">
                         Submit Reservation →
                     </button>
                 </div>
@@ -573,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 3. WIZARD NAVIGATION
     // ==========================================
 
-    function showStep(index) {
+    function showStep(index, shouldScrollToTop = false) {
         steps.forEach(function (step, i) {
             step.classList.toggle('hidden', i !== index);
         });
@@ -617,6 +621,10 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
 
+        if (shouldScrollToTop) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
     }
 
     function validateStep(index) {
@@ -648,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!validateStep(currentStep)) return;
 
             if (currentStep < steps.length - 1) {
-                showStep(currentStep + 1);
+                showStep(currentStep + 1, true);
             }
         });
     }
@@ -656,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (prevButton) {
         prevButton.addEventListener('click', function () {
             if (currentStep > 0) {
-                showStep(currentStep - 1);
+                showStep(currentStep - 1, true);
             }
         });
     }

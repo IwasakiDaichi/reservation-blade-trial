@@ -55,7 +55,7 @@
                     @endforeach
 
                     <div class="flex flex-wrap gap-3 pt-2">
-                        <button type="submit" class="rounded bg-blue-800 px-5 py-2 font-semibold text-white hover:bg-blue-900">
+                        <button type="submit" class="rounded bg-[#B21F24] px-5 py-2 font-semibold text-white hover:bg-[#741116]">
                             Save signatures
                         </button>
                         <a href="{{ route('admin.reservations.index') }}"
@@ -63,7 +63,7 @@
                             Back to reservations
                         </a>
                         <a href="{{ route('reservations.print', $reservation) }}" target="_blank" rel="noopener"
-                            class="rounded border border-blue-700 px-5 py-2 font-semibold text-blue-800 hover:bg-blue-50">
+                            class="rounded border border-[#B21F24] px-5 py-2 font-semibold text-[#B21F24] hover:bg-[#FFF1F2]">
                             Preview printable form
                         </a>
                     </div>

@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                    <button type="submit" class="rounded-md bg-[#B21F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#8A151B]">
                         Search
                     </button>
                     @if ($search !== '' || $status !== '')
@@ -248,11 +248,11 @@
                                     @endif
                                     <div class="mt-3 flex flex-col items-start gap-2">
                                         <a href="{{ route('reservations.print', $reservation) }}" target="_blank" rel="noopener"
-                                            class="text-sm font-semibold text-blue-800 underline">
+                                            class="text-sm font-semibold text-[#B21F24] underline">
                                             Print form
                                         </a>
                                         <a href="{{ route('admin.reservations.signatures.edit', $reservation) }}"
-                                            class="text-sm font-semibold text-blue-800 underline">
+                                            class="text-sm font-semibold text-[#B21F24] underline">
                                             Upload staff signatures
                                         </a>
                                     </div>

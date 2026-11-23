@@ -12,7 +12,7 @@
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <p class="text-sm text-slate-600">Tick the venues you want to see.</p>
         <div class="flex gap-2">
-            <button type="button" id="addBtn" class="rounded-lg bg-blue-800 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-900">+ Add activity</button>
+            <button type="button" id="addBtn" class="rounded-lg bg-[#B21F24] px-4 py-2 text-sm font-semibold text-white hover:bg-[#741116]">+ Add activity</button>
             <button type="button" onclick="window.print()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">Print</button>
         </div>
     </div>
@@ -27,14 +27,14 @@
         </div>
     @endif
 
-    <header class="mb-6 rounded-2xl bg-gradient-to-r from-blue-950 to-blue-800 p-6 text-center text-white shadow">
+    <header class="mb-6 rounded-lg border border-[#8A151B] bg-[#B21F24] p-6 text-center text-white shadow-sm">
         <h1 class="text-3xl font-black italic tracking-tight sm:text-4xl">CALENDAR OF ACTIVITIES</h1>
         <p class="mt-1 text-lg font-bold">{{ $month->format('F Y') }}</p>
     </header>
 
     <div class="mb-4 flex items-center justify-between print:hidden">
         <a href="{{ route('admin.calendar', ['month' => $prev] + $filterQuery) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">&larr; {{ $month->subMonth()->format('M Y') }}</a>
-        <a href="{{ route('admin.calendar', $filterQuery) }}" class="text-sm font-semibold text-blue-800 hover:underline">This month</a>
+        <a href="{{ route('admin.calendar', $filterQuery) }}" class="text-sm font-semibold text-[#B21F24] hover:underline">This month</a>
         <a href="{{ route('admin.calendar', ['month' => $next] + $filterQuery) }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">{{ $month->addMonth()->format('M Y') }} &rarr;</a>
     </div>
 
@@ -45,8 +45,8 @@
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p class="text-sm font-bold text-slate-700">Filter by venue</p>
             <div class="flex gap-3 text-xs font-semibold">
-                <button type="button" id="venuesAll" class="text-blue-800 hover:underline">Select all</button>
-                <button type="button" id="venuesNone" class="text-blue-800 hover:underline">Clear</button>
+                <button type="button" id="venuesAll" class="text-[#B21F24] hover:underline">Select all</button>
+                <button type="button" id="venuesNone" class="text-[#B21F24] hover:underline">Clear</button>
             </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -192,7 +192,7 @@
                     class="hidden rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Delete</button>
             <div class="ml-auto flex gap-2">
                 <button type="button" id="cancelBtn" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Cancel</button>
-                <button type="submit" class="rounded-lg bg-blue-800 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-900">Save</button>
+                <button type="submit" class="rounded-lg bg-[#B21F24] px-5 py-2 text-sm font-semibold text-white hover:bg-[#741116]">Save</button>
             </div>
         </div>
     </form>

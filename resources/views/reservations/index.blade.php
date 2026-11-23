@@ -38,7 +38,7 @@
                 </div>
 
                 <a href="{{ route('reservations.create') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+                    class="inline-flex items-center justify-center gap-2 rounded-md bg-[#B21F24] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#B21F24] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2">
                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path d="M10 4.75a.75.75 0 0 1 .75.75v3.75h3.75a.75.75 0 0 1 0 1.5h-3.75v3.75a.75.75 0 0 1-1.5 0V10.75H5.5a.75.75 0 0 1 0-1.5h3.75V5.5A.75.75 0 0 1 10 4.75Z" />
                     </svg>
@@ -117,7 +117,7 @@
                                         <span class="mr-2 text-xs text-slate-500">Cancellation closed {{ $reservation->cancellationDeadline()->format('M d') }}</span>
                                     @endif
                                     <a href="{{ route('reservations.print', $reservation) }}"
-                                        class="inline-flex items-center rounded-md border border-blue-700 px-3 py-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
+                                        class="inline-flex items-center rounded-md border border-[#B21F24] px-3 py-2 text-sm font-semibold text-[#B21F24] transition-colors hover:bg-[#FFF1F2] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2"
                                         target="_blank" rel="noopener">
                                         Print form
                                     </a>

@@ -1,27 +1,27 @@
 
-<nav x-data="{ open: false }" class="print:hidden sticky top-0 z-50 border-b border-slate-200 bg-white">
+<nav x-data="{ open: false }" class="print:hidden sticky top-0 z-50 border-b border-[#F1C9CC] bg-white">
 
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
 
             {{-- Brand --}}
             <div class="flex shrink-0 items-center">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                    <x-application-logo class="block h-9 w-auto fill-current text-indigo-600" />
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2">
+                    <x-application-logo class="block h-10 w-auto" />
 
-                    <div class="hidden sm:block">
-                        <p class="text-sm font-bold tracking-tight text-slate-800">
-                            CPDO Venue Reservation
+                    <div class="hidden border-l border-[#F1C9CC] pl-3 sm:block">
+                        <p class="text-sm font-bold tracking-tight text-[#1A202C]">
+                            CPDO
                         </p>
-                        <p class="text-xs text-slate-500">
-                            Reservation Management
+                        <p class="text-xs text-[#B21F24]">
+                            Venue Reservation System
                         </p>
                     </div>
                 </a>
             </div>
 
             {{-- Desktop navigation --}}
-            <div class="hidden items-center gap-2 sm:flex">
+            <div class="hidden h-full items-center sm:flex">
 
                 @if (auth()->user()->role === 'cpdo_admin')
                     <x-nav-link
@@ -88,10 +88,13 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+                            class="inline-flex items-center gap-2 rounded-md border border-[#F1C9CC] bg-white px-3 py-2 text-sm font-medium text-[#1A202C] transition-colors hover:border-[#B21F24] hover:bg-[#FFF9F9] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2">
 
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF1F2] text-[#B21F24]" aria-hidden="true">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 0 0-16 0" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
                             </span>
 
                             <span class="max-w-36 truncate">
@@ -112,7 +115,7 @@
                             <p class="truncate text-xs text-slate-500">
                                 {{ Auth::user()->email }}
                             </p>
-                            <p class="mt-1 text-xs font-semibold text-indigo-700">
+                            <p class="mt-1 text-xs font-semibold text-[#B21F24]">
                                 {{ Auth::user()->role === 'cpdo_admin' ? 'CPDO staff' : 'Student' }}
                             </p>
                         </div>
@@ -140,7 +143,7 @@
                 <button
                     @click="open = !open"
                     type="button"
-                    class="inline-flex items-center justify-center rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    class="inline-flex items-center justify-center rounded-md border border-[#F1C9CC] p-2 text-[#B21F24] transition hover:bg-[#FFF1F2] focus:outline-none focus:ring-2 focus:ring-[#B21F24] focus:ring-offset-2"
                     :aria-expanded="open.toString()"
                     aria-label="Toggle navigation menu">
 
@@ -158,7 +161,7 @@
     </div>
 
     {{-- Responsive navigation --}}
-    <div x-show="open" x-cloak class="border-t border-slate-200 bg-white sm:hidden">
+    <div x-show="open" x-cloak class="border-t border-[#F1C9CC] bg-white sm:hidden">
 
         <div class="space-y-1 px-4 py-3">
             @if (auth()->user()->role === 'cpdo_admin')
@@ -213,11 +216,11 @@
         </div>
 
         {{-- Mobile account information --}}
-        <div class="border-t border-slate-100 px-4 py-4">
-            <p class="text-sm font-semibold text-slate-800">
+        <div class="border-t border-[#F1C9CC] px-4 py-4">
+            <p class="text-sm font-semibold text-[#1A202C]">
                 {{ Auth::user()->name }}
             </p>
-            <p class="break-all text-xs text-slate-500">
+            <p class="break-all text-xs text-[#4A5568]">
                 {{ Auth::user()->email }}
             </p>
 
