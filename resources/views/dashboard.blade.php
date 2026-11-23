@@ -86,11 +86,9 @@
                         name="department"
                         x-model="dept"
                         required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                        class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                     >
-                        <option value="" disabled>
-                            Select your department
-                        </option>
+                        <option value="" disabled>Select your department</option>
 
                         @foreach ($departments as $dept)
                             <option value="{{ $dept }}">
@@ -98,9 +96,7 @@
                             </option>
                         @endforeach
 
-                        <option value="Others">
-                            Others (please specify)
-                        </option>
+                        <option value="Others">Others (please specify)</option>
                     </select>
 
                     @error('department')

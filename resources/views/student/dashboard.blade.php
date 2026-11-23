@@ -46,6 +46,14 @@
         auth()->user()->role === 'student' &&
         (blank(auth()->user()->department_id) || blank(auth()->user()->mobile_number))
     )
+        @php
+            $departments = \App\Models\Department::listedNames();
+            $currentDepartment = old('department', auth()->user()->department?->name);
+            $isOther = old('department') === 'Others'
+                || (filled($currentDepartment) && ! in_array($currentDepartment, $departments, true));
+            $otherValue = old('department_other', $isOther && $currentDepartment !== 'Others' ? $currentDepartment : '');
+        @endphp
+
         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
 
             <div class="w-full max-w-md rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-xl">
@@ -64,24 +72,49 @@
                     @csrf
                     @method('PATCH')
 
-                    <div>
+                    <div x-data="{ dept: @js($isOther ? 'Others' : ($currentDepartment ?? '')) }">
                         <label for="department" class="block text-sm font-semibold text-[#1A202C]">
                             Department / Local No.
                         </label>
 
-                        <input
-                            type="text"
+                        <select
                             id="department"
                             name="department"
-                            value="{{ old('department', auth()->user()->department?->name) }}"
+                            x-model="dept"
                             required
-                            maxlength="255"
                             class="mt-1.5 block w-full rounded-md border-[#CBD5E1] text-[#1A202C] shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
+                            <option value="" disabled>Select your department</option>
+                            @foreach ($departments as $department)
+                                <option value="{{ $department }}">{{ $department }}</option>
+                            @endforeach
+                            <option value="Others">Others (please specify)</option>
+                        </select>
 
                         @error('department')
                             <p class="mt-1 text-sm text-[#B91C1C]">{{ $message }}</p>
                         @enderror
+
+                        <div x-show="dept === 'Others'" x-cloak class="mt-3">
+                            <label for="department_other" class="block text-sm font-semibold text-[#1A202C]">
+                                Specify your department / local no.
+                            </label>
+
+                            <input
+                                type="text"
+                                id="department_other"
+                                name="department_other"
+                                value="{{ $otherValue }}"
+                                maxlength="255"
+                                placeholder="Type your department"
+                                x-bind:required="dept === 'Others'"
+                                class="mt-1.5 block w-full rounded-md border-[#CBD5E1] text-[#1A202C] shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                            >
+
+                            @error('department_other')
+                                <p class="mt-1 text-sm text-[#B91C1C]">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="mt-4">
