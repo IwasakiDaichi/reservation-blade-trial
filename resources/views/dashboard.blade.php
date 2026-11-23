@@ -25,111 +25,154 @@
         </div>
     </div>
 
-    {{-- Student Profile Completion Popup --}}
-    @if (
-        auth()->user()->role === 'student' &&
-        (blank(auth()->user()->department_id) || blank(auth()->user()->mobile_number))
-    )
-        <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
+   {{-- Student Profile Completion Popup --}}
+@if (
+    auth()->user()->role === 'student' &&
+    (blank(auth()->user()->department_id) || blank(auth()->user()->mobile_number))
+)
+    @php
+        $departments = \App\Models\Department::listedNames();
 
-            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        $currentDepartment = old(
+            'department',
+            auth()->user()->department?->name
+        );
 
-                <h2 class="text-xl font-bold text-slate-800">
-                    Complete Your Student Profile
-                </h2>
+        $isOther = old('department') === 'Others'
+            || (
+                filled($currentDepartment)
+                && !in_array($currentDepartment, $departments, true)
+            );
 
-                <p class="mt-2 text-sm text-slate-600">
-                    Please provide your department and mobile number before making a reservation.
-                </p>
+        $otherValue = old(
+            'department_other',
+            $isOther && $currentDepartment !== 'Others'
+                ? $currentDepartment
+                : ''
+        );
+    @endphp
 
-                <form action="{{ route('profile.complete') }}" method="POST" class="mt-6">
-                    @csrf
-                    @method('PATCH')
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 px-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
 
-                                        @php
-                        $departments = \App\Models\Department::listedNames();
-                        $currentDepartment = old('department', auth()->user()->department?->name);
-                        $isOther = old('department') === 'Others'
-                            || (filled($currentDepartment) && ! in_array($currentDepartment, $departments, true));
-                        $otherValue = old('department_other', $isOther && $currentDepartment !== 'Others' ? $currentDepartment : '');
-                    @endphp
+            <h2 class="text-xl font-bold text-slate-800">
+                Complete Your Student Profile
+            </h2>
 
-                    <div x-data="{ dept: @js($isOther ? 'Others' : ($currentDepartment ?? '')) }">
-                        <label for="department" class="block text-sm font-medium text-slate-700">
-                            Department / Local No.
-                        </label>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+                Please provide your department and mobile number before making a reservation.
+            </p>
 
-                        <select
+            <form
+                action="{{ route('profile.complete') }}"
+                method="POST"
+                class="mt-6 space-y-6"
+            >
+                @csrf
+                @method('PATCH')
 
-                            id="department"
-                            name="department"
-                            x-model="dept"
-                            required
+                {{-- Department --}}
+                <div x-data="{ dept: @js($isOther ? 'Others' : ($currentDepartment ?? '')) }">
 
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                    <label
+                        for="department"
+                        class="block text-sm font-medium text-slate-700"
+                    >
+                        Department / Local No.
+                    </label>
+
+                    <select
+                        id="department"
+                        name="department"
+                        x-model="dept"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                    >
+                        <option value="" disabled>Select your department</option>
+
+                        @foreach ($departments as $dept)
+                            <option value="{{ $dept }}">
+                                {{ $dept }}
+                            </option>
+                        @endforeach
+
+                        <option value="Others">Others (please specify)</option>
+                    </select>
+
+                    @error('department')
+                        <p class="mt-2 text-sm text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
+
+                    {{-- Other Department --}}
+                    <div
+                        x-show="dept === 'Others'"
+                        x-cloak
+                        class="mt-3"
+                    >
+                        <label
+                            for="department_other"
+                            class="block text-sm font-medium text-slate-700"
                         >
-                            <option value="" disabled>Select your department</option>
-                            @foreach ($departments as $dept)
-                                <option value="{{ $dept }}">{{ $dept }}</option>
-                            @endforeach
-                            <option value="Others">Others (please specify)</option>
-                        </select>
-
-                        @error('department')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-
-                        <div x-show="dept === 'Others'" x-cloak class="mt-3">
-                            <label for="department_other" class="block text-sm font-medium text-slate-700">
-                                Specify your department / local no.
-                            </label>
-                            <input
-                                type="text"
-                                id="department_other"
-                                name="department_other"
-                                value="{{ $otherValue }}"
-                                maxlength="255"
-                                x-bind:required="dept === 'Others'"
-                                placeholder="Type your department"
-                                class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
-                            >
-
-                            @error('department_other')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label for="mobile_number" class="block text-sm font-medium text-slate-700">
-                            Mobile Number
+                            Specify your department / local no.
                         </label>
 
                         <input
-                            type="tel"
-                            id="mobile_number"
-                            name="mobile_number"
-                            value="{{ old('mobile_number', auth()->user()->mobile_number) }}"
-                            required
-                            maxlength="30"
-                            placeholder="09XXXXXXXXX"
-                            class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                            id="department_other"
+                            name="department_other"
+                            type="text"
+                            value="{{ $otherValue }}"
+                            maxlength="255"
+                            placeholder="Type your department"
+                            x-bind:required="dept === 'Others'"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
                         >
 
-                        @error('mobile_number')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @error('department_other')
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
                         @enderror
                     </div>
+                </div>
 
-                    <button
-                        type="submit"
-                        class="mt-6 w-full rounded-lg bg-[#B21F24] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#8A151B]"
+                {{-- Mobile Number --}}
+                <div>
+                    <label
+                        for="mobile_number"
+                        class="block text-sm font-medium text-slate-700"
                     >
-                        Save Profile
-                    </button>
-                </form>
+                        Mobile Number
+                    </label>
 
-            </div>
+                    <input
+                        id="mobile_number"
+                        name="mobile_number"
+                        type="tel"
+                        value="{{ old('mobile_number', auth()->user()->mobile_number) }}"
+                        required
+                        maxlength="30"
+                        placeholder="09XXXXXXXXX"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#B21F24] focus:ring-[#B21F24]"
+                    >
+
+                    @error('mobile_number')
+                        <p class="mt-2 text-sm text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Submit --}}
+                <button
+                    type="submit"
+                    class="w-full rounded-lg bg-[#B21F24] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#8A151B]"
+                >
+                    Save Profile
+                </button>
+            </form>
         </div>
-    @endif
+    </div>
+@endif
 </x-app-layout>

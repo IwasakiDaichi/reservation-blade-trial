@@ -8,8 +8,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#FFF8F8] text-[#1A202C]">
+@include('layouts.navigation')
 <div class="min-h-screen bg-[#FFF8F8] lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
-    <aside class="reservation-sidebar bg-[#8A151B] px-6 py-8 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start">
+    <aside class="reservation-sidebar bg-[#8A151B] px-6 py-8 text-white lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:self-start">
         <a href="{{ url('/dashboard') }}" class="block rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#8A151B]">
             <x-application-logo class="h-auto w-36" />
             <span class="mt-5 block border-t border-[#B94F54] pt-4">
